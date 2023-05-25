@@ -20,30 +20,3 @@ router.get('/', async (req, res) => {
 });
 
 module.exports = router;
-
-// export const getAllCategoryItems = async (categoryName: string) => {
-//     try {
-//       const db = await connectToDatabase();
-//       const collection = db.collection(categoryName);
-//       const data = await collection.find({}).toArray();
-//       return data;
-//     } catch (error) {
-//       console.error('Error fetching data:', error);
-//       throw error;
-//     } finally {
-//       closeDatabaseConnection();
-//     }
-// }
-
-  // const db = client.db("easyorder");
-  // const desserts = db.collection("desserts");
-  // all data
-  // console.log(await desserts.find({}).toArray());
-  // single data
-  // const query = { name: "panna cotta" };
-  // const dessert = await desserts.findOne(query);
-  // console.log(dessert);
-
-// module.exports = {
-//     getAllCategoryItems
-// }
