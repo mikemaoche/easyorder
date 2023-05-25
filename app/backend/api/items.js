@@ -4,12 +4,12 @@ const router = express.Router();
 const { connectToDatabase, closeDatabaseConnection } = require('../server');
 
 // Get all items
-router.get('/', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
+    const { categoryName } = req.body;
     let db = await connectToDatabase();
-    const collection = db.collection('desserts'); // Replace 'items' with your actual collection name
+    const collection = db.collection(categoryName); // Replace 'items' with your actual collection name
     const items = await collection.find({}).toArray();
-    console.log(items);
     res.json(items);
   } catch (error) {
     console.error('Error:', error);

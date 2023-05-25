@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "concurrently \"npm run dev\" \"npm run start-server\"",
     "lint": "next lint",
-    "start-server": "node app/backend/server.js"
+    "start-server": "nodemon app/backend/server.js"
   },
   "dependencies": {
     "@types/node": "^20.2.3",

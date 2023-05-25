@@ -56,10 +56,10 @@ export default function Home() {
           ))
         }
       </div>
+      { !show && <Order categoryName={categoryName} /> } 
       <div className={!show ? "w-4/12 md:w-4/12 lg:w-3/12 bg-white hover:bg-orange-300 md:uppercase text-center ..." : "hidden"}>
         <button onClick={backToMenu} className="w-full p-4">back</button>
       </div>
-      { !show && <Order categoryName={categoryName} /> } 
     </main>
   )
 }
