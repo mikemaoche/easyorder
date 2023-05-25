@@ -1,0 +1,16 @@
+{
+  "name": "db",
+  "version": "1.0.0",
+  "description": "Node app that connect to MongoDB",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Mike Mao Che\\",
+  "license": "ISC",
+  "keywords": [],
+  "dependencies": {
+    "mongodb": "^5.5.0"
+  }
+}

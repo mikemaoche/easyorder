@@ -21,8 +21,8 @@
     ],
     "paths": {
       "@/*": ["./*"]
-    }
+    },
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/db/fetch.js", "app/backend/server.js", "app/backend/api/items.js"],
   "exclude": ["node_modules"]
 }
