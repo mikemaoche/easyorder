@@ -5,11 +5,13 @@ import Order from './components/order'
 export default function Home() {
   const [show, setShow] = useState(true)
   const [categoryName, setCategoryName] =  useState("")
+  const [itemType, setItemType] =  useState("")
 
   const category = [
     {name:"wines",img:"wines"},
     {name:"brandy cognac",img:"brandy"},
-    {name:"spirits & liqueurs",img:"liquor"},    
+    {name:"spirits & liqueurs",img:"liquor"},
+    {name:"beers",img:"beers"},
     {name:"cocktails",img:"cocktails"},
     {name:"mocktails",img:"mocktails"},
     {name:"soft drinks",img:"soft-drink"},
@@ -26,7 +28,33 @@ export default function Home() {
   const displayItem = (key: string, e: React.MouseEvent<HTMLElement>) => {
     const button = (e.target as HTMLElement).closest('[data-button]');
     if (button) {
-      // console.log('Button clicked:', key, button);
+      let temp ='';
+      switch (key) {
+        case 'wines':
+        case 'brandy cognac':
+        case 'spirits & liqueurs':
+        case 'beers':
+        case 'cocktails':
+        case 'mocktails':
+        case 'soft drinks':
+        case 'port & dessert wines':
+          temp = 'drinks'
+          break;
+        case 'tea & coffees':
+        case 'desserts':
+          temp = 'desserts'
+          break;
+        case 'dinne in':
+        case 'takeaway':
+          temp = 'food'
+          break;
+        case 'kids menu':
+          temp = 'kids_menu'
+          break;
+        default:
+          break;
+      }
+      setItemType(temp)
       setCategoryName(key)
       setShow(false)
     }
@@ -56,8 +84,8 @@ export default function Home() {
           ))
         }
       </div>
-      { !show && <Order categoryName={categoryName} /> } 
-      <div className={!show ? "w-4/12 md:w-4/12 lg:w-3/12 bg-white hover:bg-orange-300 md:uppercase text-center ..." : "hidden"}>
+      { !show && <Order itemType={itemType} categoryName={categoryName} /> } 
+      <div className={!show ? "w-4/12 md:w-4/12 lg:w-3/12 bg-white hover:bg-orange-300 md:uppercase text-center m-2 ..." : "hidden"}>
         <button onClick={backToMenu} className="w-full p-4">back</button>
       </div>
     </main>

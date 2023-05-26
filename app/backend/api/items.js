@@ -3,14 +3,14 @@ const router = express.Router();
 
 const { connectToDatabase, closeDatabaseConnection } = require('../server');
 
-// Get all items
+// Get all items for the category
 router.post('/', async (req, res) => {
   try {
-    const { categoryName } = req.body;
+    const { itemType } = req.body;
     let db = await connectToDatabase();
-    const collection = db.collection(categoryName); // Replace 'items' with your actual collection name
+    const collection = db.collection(itemType); 
     const items = await collection.find({}).toArray();
-    res.json(items);
+    res.status(200).json({ items, message: 'Items are fetched successfully' });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'Failed to fetch items from MongoDB' });
