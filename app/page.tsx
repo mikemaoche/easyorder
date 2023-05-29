@@ -1,6 +1,8 @@
 'use client';
 import { useState } from "react";
 import Order from './components/order'
+import Bill from './components/bill'
+import Popularity from './components/popular-items'
 
 export default function Home() {
   const [show, setShow] = useState(true)
@@ -68,7 +70,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center p-10">
       {/* header */}
       <div className="flex items-center space-x-4 p-4 md:p-10">
-        <header className="font-bold text-4xl">EasyOrder</header>
+        <header className="font-bold text-4xl animate-pulse text-white">EasyOrder</header>
         {/* <img className="bg-white rounded-full p-1" src="/images/tequila-sunrise.png" alt="" /> */}
       </div>
       {/* layout */}
@@ -84,9 +86,11 @@ export default function Home() {
           ))
         }
       </div>
-      { !show && <Order itemType={itemType} categoryName={categoryName} /> } 
+      { !show && categoryName != 'Bill' &&  categoryName != 'popular selection' && <Order itemType={itemType} categoryName={categoryName} /> } 
+      { !show && categoryName == 'Bill' && <Bill /> } 
+      { !show && categoryName == 'popular selection' && <Popularity /> } 
       <div className={!show ? "w-4/12 md:w-4/12 lg:w-3/12 bg-white hover:bg-orange-300 md:uppercase text-center m-2 ..." : "hidden"}>
-        <button onClick={backToMenu} className="w-full p-4">back</button>
+        <button onClick={backToMenu} className="w-full p-4 uppercase font-bold">back</button>
       </div>
     </main>
   )
