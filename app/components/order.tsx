@@ -113,7 +113,7 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
                           return <div key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
                             {item.name}</div>
                         if(item.category_id == 'food' && categoryName == 'kids menu')
-                          return <div key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer`}>
+                          return <div key={item._id} className={`bg-white p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer`}>
                             {item.name}</div>
                       })
                     ) : (
