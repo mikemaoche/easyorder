@@ -41,12 +41,21 @@ const typeDrinkColorMap = {
   // Add more type_drink-color mappings as needed
 };
 
+type Item = {
+  id: number;
+  name: string;
+  quantity: number;
+};
+
 type OrderProps = {
     itemType:  String;
     categoryName: String;
 }
 const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
   const [data, setData] = useState();
+  const [selectedItems, setSelectedItems] = useState<Item[]>([])
+  const [toggleFlash, setToggleFlash] = useState(false)
+  const [idToggle, setIdToggle] = useState(0)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,51 +79,89 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
     fetchData();
   }, []);
 
+  const addItem = (itemId,itemName) => {
+    const newItem: Item = { id: itemId, name: itemName, quantity : 1 };
+    const existingItemIndex = selectedItems.findIndex((item) => item.id === itemId);
+    if (existingItemIndex !== -1) {
+      // Item already exists, update its quantity
+      const updatedItems = [...selectedItems];
+      updatedItems[existingItemIndex].quantity += 1;
+      setSelectedItems(updatedItems);
+      setIdToggle(updatedItems[existingItemIndex].id)
+      setToggleFlash(true)
+    } else {
+      // Item is not in the array, add it as a new item
+      setSelectedItems([...selectedItems, newItem]);
+    }
+  }
+
+  const deleteItem = (id : any) => {
+    setSelectedItems((prevItems) =>
+      prevItems.filter((item) => item.id !== id)
+    );
+  }
+
+  const editQuantity = (id : any, quantity : number) => {
+    const updatedItems = selectedItems.map((item) => {
+      if (item.id === id) {
+        return { ...item, quantity };
+      }
+      return item;
+    });
+    setSelectedItems(updatedItems);
+  }
+
+  const resetBucketList = () => {
+    setSelectedItems([]);
+  }
+
     return (
         <div>
-            <Review />
+            <Review idToggle={idToggle} toggleFlash={toggleFlash}
+              resetBucketList={resetBucketList} deleteSelectedItem={deleteItem} editQuantity={editQuantity} selectedItems={selectedItems}
+              />
             <div className='flex flex-col items-center'>
               <p className='text-white sm:text-xl md:text-2xl lg:text-4xl uppercase font-bold m-4'>{categoryName}</p>
-              <div className='uppercase text-center flex flex-wrap md:w-8/12 lg:w-8/12 justify-center gap-2 m-2'>
+              <div className='uppercase text-center select-none flex flex-wrap md:w-8/12 lg:w-8/12 justify-center gap-2 m-2'>
                   {
                       data ? (
                       data.items.map((item: { type: string; _id: React.Key | null | undefined; drink_type: { name: string | number; }; name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.PromiseLikeOfReactNode | null | undefined; category_id: string; }) => {
                         if(item.type == 'wines' && categoryName == 'wines')
-                          return <div key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.drink_type.name]}`}>
-                            {item.name}</div>
+                          return <div role='button' onClick={() => addItem(item._id,item.name)} key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.drink_type.name]}`}>
+                           {item.name}</div>
                         if(item.type == 'brandy' && categoryName == 'brandy cognac' || item.type == 'cognac' && categoryName == 'brandy cognac')
-                          return <div key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
-                          {item.name}</div>
+                          return <div role='button' onClick={() => addItem(item._id,item.name)} key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
+                         {item.name}</div>
                         if(item.type == 'spirits' && categoryName == 'spirits & liqueurs' || item.type == 'liqueurs' && categoryName == 'spirits & liqueurs')
-                          return <div key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
-                            {item.name}</div>
+                          return <div role='button' onClick={() => addItem(item._id,item.name)} key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
+                           {item.name}</div>
                         if(item.type == 'beers' && categoryName == 'beers')
-                          return <div key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
-                            {item.name}</div>
+                          return <div role='button' onClick={() => addItem(item._id,item.name)} key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
+                           {item.name}</div>
                         if(item.type == 'cocktails' && categoryName == 'cocktails' || item.type == 'sparkling cocktails' && categoryName == 'cocktails')
-                          return <div key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
-                            {item.name}</div>
+                          return <div role='button' onClick={() => addItem(item._id,item.name)} key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
+                           {item.name}</div>
                         if(item.type == 'mocktails' && categoryName == 'mocktails')
-                          return <div key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
-                          {item.name}</div>
+                          return <div role='button' onClick={() => addItem(item._id,item.name)} key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
+                         {item.name}</div>
                         if(item.type == 'soft drinks' && categoryName == 'soft drinks')
-                          return <div key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
-                            {item.name}</div>
+                          return <div role='button' onClick={() => addItem(item._id,item.name)} key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
+                           {item.name}</div>
                         if(item.type == 'dessert wines' && categoryName == 'port & dessert wines')
-                          return <div key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.drink_type.name]}`}>
-                            {item.name}</div>
+                          return <div role='button' onClick={() => addItem(item._id,item.name)} key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.drink_type.name]}`}>
+                           {item.name}</div>
                         if(item.type == 'desserts' && categoryName == 'desserts')
-                          return <div key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
-                            {item.name}</div>
+                          return <div role='button' onClick={() => addItem(item._id,item.name)} key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
+                           {item.name}</div>
                         if((item.type == 'tea' || item.type == 'coffees') && categoryName == 'tea & coffees')
-                          return <div key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
-                            {item.name}</div>
+                          return <div role='button' onClick={() => addItem(item._id,item.name)} key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
+                           {item.name}</div>
                         if(item.category_id == 'food' && (categoryName == 'dinne in' || categoryName == 'takeaway'))
-                          return <div key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
-                            {item.name}</div>
+                          return <div role='button' onClick={() => addItem(item._id,item.name)} key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.type]}`}>
+                           {item.name}</div>
                         if(item.category_id == 'food' && categoryName == 'kids menu')
-                          return <div key={item._id} className={`bg-white p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer`}>
-                            {item.name}</div>
+                          return <div role='button' onClick={() => addItem(item._id,item.name)} key={item._id} className={`bg-white p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer`}>
+                           {item.name}</div>
                       })
                     ) : (
                       <div>loading ...</div>
