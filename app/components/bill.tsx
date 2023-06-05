@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
   
-export default function bill() {
+export default function bill({ style, tableButton, closeTablesUI, getTableNumber }) {
     const [nbOfTables, setNumbTables] = useState(52)
     const [toggle,setToggle] = useState(false)
     const [tableNumber,setTableNumber] = useState(0)
@@ -34,15 +34,29 @@ export default function bill() {
         setToggle(false)
     }
 
+    const closeTables = () => {
+        closeTablesUI()
+    }
+
+    const sendTableNumber = (e: React.MouseEvent<HTMLButtonElement>) => {
+        const table = e.currentTarget.value
+        getTableNumber(table)
+    }
+
     return (
         <div>
-            <div className='flex flex-col items-center'>
+            <div className={`flex flex-col items-center ${style}`}>
+                {
+                    tableButton && (
+                        <button onClick={() => closeTables()} className="text-4xl font-bold uppercase text-center m-4 p-4 bg-red-400 hover:bg-red-600 hover:text-white absolute right-0 top-0">x</button>
+                    )
+                }
                 <div className='flex flex-wrap md:w-8/12 lg:w-8/12 justify-center gap-2 m-2'>
                 {
                     Array.from({ length: nbOfTables }).map((_, index) => (
                     <div key={index + 1}>
                         <button 
-                            onClick={(e) => openModal(e)}
+                            onClick={tableButton ? (e) => sendTableNumber(e) : (e) => openModal(e)}
                             className="text-xl w-16 font-bold rounded-full bg-white p-4 hover:bg-orange-400" value={index + 1}>
                             {index + 1}
                         </button>
@@ -51,11 +65,11 @@ export default function bill() {
                 }
                 </div>
             </div>
-            {/* modal */}
-            {
+            {/* modal || tableButton is used in a different component (review-order) */}
+            {   
                 toggle && (
-                    <div className={`fixed inset-0 flex items-center justify-center h-screen `} >
-                        <div className='w-11/12 h-[90%] bg-white relative ...' ref={modalRef}>
+                    <div className={`absolute z-20 inset-0 flex items-center justify-center h-screen `} >
+                        <div className={'w-11/12 h-[90%] bg-white relative ...'} ref={modalRef}>
                             <div className='flex justify-center items-center'>
                                 <p className="text-4xl font-bold uppercase text-center m-4">invoice for table {tableNumber}</p>
                                 <button 

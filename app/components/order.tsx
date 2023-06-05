@@ -117,7 +117,7 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
 
     return (
         <div>
-            <Review idToggle={idToggle} toggleFlash={toggleFlash}
+            <Review itemType={itemType} idToggle={idToggle} toggleFlash={toggleFlash}
               resetBucketList={resetBucketList} deleteSelectedItem={deleteItem} editQuantity={editQuantity} selectedItems={selectedItems}
               />
             <div className='flex flex-col items-center'>

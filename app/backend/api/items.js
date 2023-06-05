@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongodb');
 const express = require('express');
 const router = express.Router();
 
@@ -18,5 +19,21 @@ router.post('/', async (req, res) => {
     await closeDatabaseConnection();
   }
 });
+
+router.post('/editOrder', async (req, res) => {
+  try {
+    const { itemId, itemType } = req.body;
+    let db = await connectToDatabase();
+    const collection = db.collection(itemType); 
+    const item = await collection.findOne({ _id: new ObjectId(itemId) });
+    console.log(item);
+    res.status(200).json({ item, message: `the product ${itemId} is fetched` });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: `Failed to fetch the item from MongoDB` });
+  } finally {
+    await closeDatabaseConnection();
+  }
+})
 
 module.exports = router;
