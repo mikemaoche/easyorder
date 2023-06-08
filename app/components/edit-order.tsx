@@ -54,7 +54,7 @@ const EditOrder: React.FC<Props>  = ({itemId, itemType, setEditToggle}) => {
         <div className={`fixed inset-0 flex items-center justify-center h-screen `} >
             <div className='w-[98%] h-[98%] bg-white relative ...'>
                 <div className='flex justify-center items-center'>
-                    <p className="text-4xl font-bold uppercase text-center m-4">edit order {itemId}</p>
+                    <p className="text-4xl font-bold uppercase text-center m-4">edit {itemId}</p>
                     <button 
                         name="modal"
                         onClick={closeModal}

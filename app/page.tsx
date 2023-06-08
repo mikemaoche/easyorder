@@ -69,7 +69,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center p-10">
       {/* header */}
-      <div className="flex items-center space-x-4 p-4 md:p-10">
+      <div className="flex xl:items-center space-x-4 p-4 md:p-10">
         <header className="font-bold text-4xl animate-pulse text-white">EasyOrder</header>
         {/* <img className="bg-white rounded-full p-1" src="/images/tequila-sunrise.png" alt="" /> */}
       </div>
