@@ -1,4 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
+import { jsPDF } from 'jspdf'
+import "jspdf-autotable"
   
 export default function bill({ style, tableButton, closeTablesUI, getTableNumber }) {
     const [nbOfTables, setNumbTables] = useState(52)
@@ -102,7 +104,64 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
         closeTablesUI()
     }
 
+    const generateBillPDF = () => {
+        // Default export is a4 paper, portrait, using millimeters for units
+        const doc = new jsPDF();
+        const fileName = 'bill'
 
+        // header HTML
+        const header =  document.getElementById('header')?.textContent?.toUpperCase()
+        let pageWidth = doc.internal.pageSize.getWidth();
+        const textWidth = doc.getStringUnitWidth(header) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+        const x = pageWidth - textWidth - 15;
+        doc.text(header, x, 10);
+
+        // table HTML
+        const table = document.getElementById('tableBill')
+        const tableHeaderRow  = table.getElementsByTagName('thead')[0].querySelector('tr');
+        const tableHeader = Array.from(tableHeaderRow.cells).map(cell => cell.textContent);
+        const tableBodyRows = table.getElementsByTagName('tbody')[0].querySelectorAll('tr');
+        
+        const tableBody = Array.from(tableBodyRows).map(row => {
+            const rowData = Array.from(row.cells).map(cell => cell.textContent)
+            return rowData
+        });
+        
+        doc.autoTable({
+            head: [tableHeader],
+            body: tableBody,
+        });
+
+        // footer HTML
+        const footer =  document.getElementById('footer').innerText
+        pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        // Set the position coordinates for the footer
+        const footerX = pageWidth - 15;
+        const footerY = pageHeight - 70;
+
+        doc.setFillColor('pink');
+        doc.setDrawColor('gray');
+        doc.setLineWidth('1');
+        doc.rect(footerX - 38, footerY - 5, 40, 50, 'FD');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text(footer, footerX, footerY,{
+            align: 'right',
+        });
+
+
+        // detail HTML
+        const detail =  document.getElementById('detail').innerText
+        pageWidth = doc.internal.pageSize.getWidth();
+        doc.text(detail, 15, footerY,{
+            align: 'left',
+        });
+
+        doc.save(fileName + '.pdf');
+        console.log('pdf is generated')
+    }
    
 
     return (
@@ -133,7 +192,7 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
                     <div className={`absolute z-20 inset-0 flex items-center justify-center h-screen `} >
                         <div className={'w-11/12 h-[90%] bg-white relative ...'} ref={modalRef}>
                             <div className='flex justify-center items-center'>
-                                <p className="text-4xl font-bold uppercase text-center m-4">invoice for table {tableNumber}</p>
+                                <p id='header' className="text-4xl font-bold uppercase text-center m-4">invoice for table {tableNumber}</p>
                                 <button 
                                     name="modal"
                                     onClick={closeModal}
@@ -141,7 +200,7 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
                                     >x</button>
                             </div>
                             {/* fetch from database the orders */}
-                            <div className='w-6/12 max-h-[90%] bg-gray-100 m-auto relative'>
+                            <div id='tableBill' className='w-6/12 max-h-[90%] bg-gray-100 m-auto relative'>
                                 <table className='w-full table-fixed text-right'>
                                     <thead className='sticky top-0 bg-white'>
                                         <tr>
@@ -171,29 +230,31 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
                                     </table>
                                 </div>
                                 <div className='uppercase font-medium bg-green-200 w-full sticky z-50 bottom-0 left-0 border-t-4 border-slate-500 p-4'>
-                                    <div>Company Name: {COMPANY_NAME}</div>
-                                    <div>date of purchase: {date} at {currentTime}</div>
-                                    <div>Served by: {staff}</div>
-                                    <div className='flex flex-col'>
+                                    <div id='detail'>
+                                        <div>Company Name: {COMPANY_NAME}</div>
+                                        <div>date of purchase: {date}</div>
+                                        <div>at {currentTime}</div>
+                                        <div>Served by: {staff}</div>
+                                    </div>
+                                    <div id='footer' className='flex flex-col'>
                                         <div className='flex gap-4 place-content-end'>
                                             <p>subtotal</p>
-                                            <p className='font-bold'>${total-(total * 0.15).toFixed(2)}</p>
+                                            <p className='font-bold'>$ {total-(total * 0.15).toFixed(2)}</p>
                                         </div>
                                         <div className='flex gap-4 place-content-end'>
                                             <p>include gst (15%)</p>
-                                            <p className='font-bold'>${(total * 0.15).toFixed(2)}</p>
+                                            <p className='font-bold'>$ {(total * 0.15).toFixed(2)}</p>
                                         </div>
                                         <div className='flex gap-4 place-content-end'>
                                             <p>total</p>
-                                            <p className='font-bold'>${total.toFixed(2)}</p>
+                                            <p className='font-bold'>$ {total.toFixed(2)}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div className='flex flex-col absolute bottom-0 right-0 gap-2 m-3'>
                                 <button name="modal" onClick={closeModal} className="text-4xl font-bold uppercase text-center p-4 bg-red-400 hover:bg-red-600 hover:text-white ">close</button>
-                                <button className="text-4xl font-bold uppercase text-center p-4 bg-slate-400 hover:bg-slate-600 hover:text-white ">edit</button>
-                                <button className="text-4xl font-bold uppercase text-center p-4 bg-slate-400 hover:bg-slate-600 hover:text-white ">print</button>
+                                <button onClick={() => generateBillPDF()} className="text-4xl font-bold uppercase text-center p-4 bg-slate-400 hover:bg-slate-600 hover:text-white ">print</button>
                                 <button className="text-4xl font-bold uppercase text-center p-4 bg-slate-400 hover:bg-slate-600 hover:text-white">pay</button>
                             </div>
                         </div>
