@@ -229,14 +229,14 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
                                         </tbody>
                                     </table>
                                 </div>
-                                <div className='uppercase font-medium bg-green-200 w-full sticky z-50 bottom-0 left-0 border-t-4 border-slate-500 p-4'>
-                                    <div id='detail'>
+                                <div className='uppercase flex font-medium bg-green-200 w-full h-[160px] sticky z-50 bottom-0 left-0 border-t-4 border-slate-500 p-4'>
+                                    <div id='detail' className='basis-1/2'>
                                         <div>Company Name: {COMPANY_NAME}</div>
                                         <div>date of purchase: {date}</div>
                                         <div>at {currentTime}</div>
                                         <div>Served by: {staff}</div>
                                     </div>
-                                    <div id='footer' className='flex flex-col'>
+                                    <div id='footer' className='flex flex-col basis-1/2 '>
                                         <div className='flex gap-4 place-content-end'>
                                             <p>subtotal</p>
                                             <p className='font-bold'>$ {total-(total * 0.15).toFixed(2)}</p>

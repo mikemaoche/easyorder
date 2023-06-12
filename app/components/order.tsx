@@ -92,6 +92,7 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
       // Item is not in the array, add it as a new item
       setSelectedItems([...selectedItems, newItem]);
     }
+    
   }
 
   const deleteItem = (id : any) => {
@@ -117,7 +118,7 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
     return (
         <div>
             <Review itemType={itemType} idToggle={idToggle} toggleFlash={toggleFlash}
-              resetBucketList={resetBucketList} deleteSelectedItem={deleteItem} editQuantity={editQuantity} selectedItems={selectedItems}
+              resetBucketList={resetBucketList} deleteSelectedItem={deleteItem} editQuantity={editQuantity} selectedItems={selectedItems} setSelectedItems={setSelectedItems}
               />
             <div className='flex flex-col xl:items-center'>
               <p className='text-white sm:text-xl md:text-2xl lg:text-4xl uppercase font-bold m-4'>{categoryName}</p>

@@ -2,7 +2,13 @@ import React, { useEffect, useState } from 'react'
 import EditOrder from './edit-order'
 import Table from './bill'
 
-export default function Review({ itemType, idToggle, toggleFlash, resetBucketList, deleteSelectedItem, editQuantity, selectedItems}){
+
+interface ChildComponentProps {
+    orders: Order[];
+    setSelectedItems: React.Dispatch<React.SetStateAction<Order[]>>;
+}
+
+export default function Review({ itemType, idToggle, toggleFlash, resetBucketList, deleteSelectedItem, editQuantity, selectedItems, setSelectedItems}){
     const TABLE_STYLE = 'fixed top-20 left-0 right-0 bottom-20 m-auto z-10 bg-emerald-400 w-6/12 p-4 border-4 justify-center'
     const table = 'unselected'
     const [canSend, setCanSend] = useState(true)
@@ -13,19 +19,20 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
     const [extend, setExtend] = useState(false)
     const [tableButton, setTableButton] = useState(false)
     const [clearButton, setClearButton] = useState(true)
+    const [dataLoaded, setDataLoaded] = useState(false)
 
     useEffect(() => {
         // check if there is a table number and an item before sending
         const disableClearButton = () => {
-            setClearButton(!(selectedItems.length > 0 || tableNumb != table))
+            setClearButton(!(selectedItems && selectedItems.length > 0 || tableNumb != table))
         }
         disableClearButton()
 
         const verifyOrder = () => {
             let decision = false
-            if(tableNumb == table && selectedItems.length <= 0)  decision = true;
-            if(tableNumb == table && selectedItems.length >= 0) decision = true;
-            if(selectedItems.length <= 0 && tableNumb != table) decision = true;
+            if(tableNumb == table && selectedItems && selectedItems.length <= 0)  decision = true;
+            if(tableNumb == table && selectedItems && selectedItems.length >= 0) decision = true;
+            if(selectedItems && selectedItems.length <= 0 && tableNumb != table) decision = true;
             setCanSend(decision)
         }
         verifyOrder()
@@ -34,8 +41,39 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
           setFlash(true);
         }
 
-        // if(tableNumb != table) fetchOrders()
-    }, [toggleFlash, selectedItems, tableNumb]);
+        if(tableNumb != table && !dataLoaded) {
+            const updateSelectedItems = () => {
+                const response = fetchOrders()
+                response.then(orders => {
+                    const updatedItems =  orders.map((order) => ({
+                            id: order.item.id,
+                            name: order.item.name,
+                            quantity: order.quantity,
+                        }))
+                    
+                    // update quantity if the item is duplicated
+                    updatedItems.forEach(updatedItem => {
+                        const existingItem = selectedItems.find(item => item.id === updatedItem.id);
+                        if (existingItem) {
+                            existingItem.quantity += updatedItem.quantity;
+                        } else {
+                        selectedItems.push(updatedItem);
+                        }
+                    });
+
+                    setSelectedItems([... selectedItems])
+                })
+                
+               
+            }
+            setDataLoaded(true)
+            setSelectedItems(updateSelectedItems);
+            closeTablesUI()
+        }
+
+        
+
+    }, [toggleFlash, selectedItems, tableNumb, setSelectedItems]);
 
     const fetchOrders = async () => {
         try {
@@ -49,15 +87,11 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
                 body: JSON.stringify({ tableId : tableNumb }),
             });
             const { orders, message } = await response.json()
-            if(orders) {
-                
-                orders.map((order) =>{
-                    // selectedItems.item.id = order._id
-                    // selectedItems.item.name = order.item.name
-                    // selectedItems.item.quantity = order.quantity
-                })
+            if (orders) {
+                return Promise.resolve(orders);
+            } else {
+                return Promise.reject(new Error(message || "No orders found."));
             }
-            // console.log(selectedItems);
             
             } catch (error) {
             console.error('Error:', error);
@@ -93,6 +127,7 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
     }
     const getTable = (tableNO) => {
         setTableNumb(tableNO)
+        setDataLoaded(false)
     }
     
     const openTablesUI = () => {
@@ -123,6 +158,7 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
             }
         }
         registerOrder()
+        clearAll()
     }
 
     return (
@@ -144,7 +180,7 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
                         <table className='w-full table-fixed text-center'>
                             <tbody className=''>
                                 {
-                                    selectedItems.length > 0 ? 
+                                    selectedItems && selectedItems.length > 0 ? 
                                     selectedItems.map((item) => {
                                         return (
                                                 <tr key={item.name} className='align-top'>
