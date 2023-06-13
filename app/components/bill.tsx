@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { jsPDF } from 'jspdf'
 import "jspdf-autotable"
+import Payment from './payment'
   
 export default function bill({ style, tableButton, closeTablesUI, getTableNumber }) {
     const [nbOfTables, setNumbTables] = useState(52)
@@ -18,6 +19,7 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
     const COMPANY_NAME = 'Portofino'
     const [total, setTotal] = useState(0)
     const [staff, setStaff] = useState('John')
+    const [togglePayment, setTogglePayment] = useState(false)
 
     useEffect(() => {
         const fetchTables = async () => {
@@ -51,6 +53,8 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
                     body: JSON.stringify({ tableId : tableNumber }),
                 });
                 const { orders, message } = await response.json()
+                console.log(orders);
+                
                 setOrders(orders);
                 } catch (error) {
                 console.error('Error:', error);
@@ -64,24 +68,16 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
             closeModal();
           }
         }
-      
-        if (toggle) {
-          document.addEventListener('click', handleOutsideClick);
-        } else {
-          document.removeEventListener('click', handleOutsideClick);
-        }
-      
-        return () => {
-          document.removeEventListener('click', handleOutsideClick);
-        };
         
       }, [tableNumber,toggle]);
 
     useEffect(() => {
         let sum = 0;
-        orders.forEach(order => {
-            sum += order.item.price;
-        });
+        if(orders) {
+            orders.forEach(order => {
+                sum += order.item.price;
+            });
+        }
         setTotal(sum);
     }, [orders]);
 
@@ -162,7 +158,10 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
         doc.save(fileName + '.pdf');
         console.log('pdf is generated')
     }
-   
+    
+    const togglePaymentModal = () => {
+        setTogglePayment(true)
+    }
 
     return (
         <div>
@@ -216,7 +215,7 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
                                         <tbody>
                                             {
                                                 orders && orders.length > 0 ? orders.map((detail) => (
-                                                    <tr  key={detail._id}>
+                                                    <tr key={detail._id}>
                                                         <td className='p-4 border-b font-medium'>{detail.item.name}</td>
                                                         <td className='p-4 border-b'>{detail.quantity}</td>
                                                         <td className='p-4 border-b'>{detail.item.price}</td>
@@ -239,7 +238,7 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
                                     <div id='footer' className='flex flex-col basis-1/2 '>
                                         <div className='flex gap-4 place-content-end'>
                                             <p>subtotal</p>
-                                            <p className='font-bold'>$ {total-(total * 0.15).toFixed(2)}</p>
+                                            <p className='font-bold'>$ {(total-(total * 0.15)).toFixed(2)}</p>
                                         </div>
                                         <div className='flex gap-4 place-content-end'>
                                             <p>include gst (15%)</p>
@@ -255,8 +254,13 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
                             <div className='flex flex-col absolute bottom-0 right-0 gap-2 m-3'>
                                 <button name="modal" onClick={closeModal} className="text-4xl font-bold uppercase text-center p-4 bg-red-400 hover:bg-red-600 hover:text-white ">close</button>
                                 <button onClick={() => generateBillPDF()} className="text-4xl font-bold uppercase text-center p-4 bg-slate-400 hover:bg-slate-600 hover:text-white ">print</button>
-                                <button className="text-4xl font-bold uppercase text-center p-4 bg-slate-400 hover:bg-slate-600 hover:text-white">pay</button>
+                                <button onClick={(e) => togglePaymentModal()} disabled={togglePayment} className={`${togglePayment ? 'disabled:opacity-70 cursor-no-drop' : 'hover:bg-slate-600 hover:text-white'} text-4xl font-bold uppercase text-center p-4 bg-slate-400`}>pay</button>
                             </div>
+                            {
+                                togglePayment && (
+                                    <Payment setTogglePayment={setTogglePayment} total={total} tableNumber={tableNumber} />
+                                )
+                            }
                         </div>
                     </div>
                 )

@@ -29,9 +29,11 @@ const EditOrder: React.FC<Props>  = ({itemId, itemType, setEditToggle}) => {
                     headers: {
                       'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ itemId, itemType }),
+                    body: JSON.stringify({ itemId }),
                   });
                   let data = await response.json()
+                  console.log(data);
+                  
                   setData(data.item);
                 } catch (error) {
                   console.error('Error:', error);

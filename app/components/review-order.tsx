@@ -117,7 +117,7 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
         setIsEditOrderOn(true)
     }
 
-    const setEditToggle = (status) => {
+    const setEditToggle = (status: boolean | ((prevState: boolean) => boolean)) => {
         setIsEditOrderOn(status)
     }
 
@@ -125,7 +125,7 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
         let temp = !extend
         setExtend(temp)
     }
-    const getTable = (tableNO) => {
+    const getTable = (tableNO: React.SetStateAction<string>) => {
         setTableNumb(tableNO)
         setDataLoaded(false)
     }
@@ -181,7 +181,7 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
                             <tbody className=''>
                                 {
                                     selectedItems && selectedItems.length > 0 ? 
-                                    selectedItems.map((item) => {
+                                    selectedItems.map((item: { name: boolean | React.Key | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.PromiseLikeOfReactNode | null | undefined; id: any; quantity: string | number | readonly string[] | undefined; }) => {
                                         return (
                                                 <tr key={item.name} className='align-top'>
                                                     <td className='border-b border-l p-4'>
@@ -215,7 +215,7 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
             </div>
             {
                 isEditOrderOn && (
-                    <EditOrder itemId={itemId} itemType={itemType} setEditToggle={setEditToggle} />
+                    <EditOrder itemId={itemId} setEditToggle={setEditToggle} />
                 )
             }
             {
