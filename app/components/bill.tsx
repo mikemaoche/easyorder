@@ -3,10 +3,9 @@ import { jsPDF } from 'jspdf'
 import "jspdf-autotable"
 import Payment from './payment'
   
-export default function bill({ style, tableButton, closeTablesUI, getTableNumber }) {
+export default function bill({ style, tableButton, closeTablesUI, setTableNumber, tableNumber, setDataLoaded , setSelectedItems}) {
     const [nbOfTables, setNumbTables] = useState(52)
     const [toggle,setToggle] = useState(false)
-    const [tableNumber,setTableNumber] = useState(0)
     const modalRef = useRef(null)
     const [tables, setTables] = useState([])
     const [orders, setOrders] = useState([])
@@ -20,7 +19,9 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
     const [total, setTotal] = useState(0)
     const [staff, setStaff] = useState('John')
     const [togglePayment, setTogglePayment] = useState(false)
-
+    const [loadData, setLoadData] = useState(true)
+    const [localTableNumber,setLocalTableNumber] = useState(0)
+    
     useEffect(() => {
         const fetchTables = async () => {
             try {
@@ -39,7 +40,7 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
               }
             };
         
-        if(!toggle) fetchTables()
+        if(!toggle && tables.length == 0) fetchTables()
 
         const fetchOrders = async () => {
             try {
@@ -50,46 +51,40 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
                     headers: {
                     'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ tableId : tableNumber }),
+                    body: JSON.stringify({ tableId : localTableNumber }),
                 });
                 const { orders, message } = await response.json()
-                console.log(orders);
+                let sum = 0;
                 
-                setOrders(orders);
-                } catch (error) {
+                if(orders) {
+                    orders.forEach(order => {
+                        sum += order.item.price;
+                    });
+                    setTotal(sum);
+                    setOrders(orders);
+                } 
+                if(orders.length == 0) setLoadData(false)
+            } catch (error) {
                 console.error('Error:', error);
             }
         }
-        if(toggle) fetchOrders()
-
-
-        const handleOutsideClick = (e) => {
-          if (modalRef.current && !modalRef.current.contains(e.target)) {
-            closeModal();
-          }
-        }
         
-      }, [tableNumber,toggle]);
-
-    useEffect(() => {
-        let sum = 0;
-        if(orders) {
-            orders.forEach(order => {
-                sum += order.item.price;
-            });
-        }
-        setTotal(sum);
-    }, [orders]);
+        if(toggle && localTableNumber != 0 ) fetchOrders()
+      }, [tableNumber, tables, loadData, localTableNumber]);
 
     const sendTableNumber = (e: React.MouseEvent<HTMLButtonElement>) => {
         const table = e.currentTarget.value
-        getTableNumber(table)
+        setSelectedItems([])
+        setDataLoaded(false)
+        setTableNumber(table)
+        closeTables()
     }
 
+    // when checking the bill
     const openModal = (e: React.MouseEvent<HTMLButtonElement>) => {
         const table = e.currentTarget.value
         setToggle(true)
-        setTableNumber(table)
+        setLocalTableNumber(table)
     }
 
     const closeModal = () => {
@@ -177,7 +172,11 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
                     <div key={index + 1}>
                         <button 
                             onClick={tableButton ? (e) => sendTableNumber(e) : (e) => openModal(e)}
-                            className={`${ tables && tables.find(table => table._id == index + 1) ? 'text-white bg-yellow-600' : 'bg-white' } text-xl w-16 font-bold rounded-full p-4 hover:bg-orange-400`} value={index + 1}>
+                            disabled={tableNumber == index + 1 ? true : false} 
+                            className={`${tables && tables.find(table => table._id == index + 1) ?  'text-white bg-yellow-600' : 'bg-white' } 
+                            ${tableNumber == index + 1 ? 'disabled:opacity-70 cursor-no-drop' : 'hover:bg-orange-400'}
+                            text-xl w-16 font-bold rounded-full p-4`} 
+                            value={index + 1}>
                              {index + 1}
                         </button>
                     </div>
@@ -191,7 +190,7 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
                     <div className={`absolute z-20 inset-0 flex items-center justify-center h-screen `} >
                         <div className={'w-11/12 h-[90%] bg-white relative ...'} ref={modalRef}>
                             <div className='flex justify-center items-center'>
-                                <p id='header' className="text-4xl font-bold uppercase text-center m-4">invoice for table {tableNumber}</p>
+                                <p id='header' className="text-4xl font-bold uppercase text-center m-4">invoice for table {localTableNumber}</p>
                                 <button 
                                     name="modal"
                                     onClick={closeModal}
@@ -223,7 +222,7 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
                                                     </tr>
                                                 )) 
                                                 : 
-                                                <tr><td>loading...</td></tr>
+                                                <tr><td className='uppercase font-bold text-2xl text-center p-2'>{loadData ? 'loading...' : 'no data found'}</td></tr>
                                             }
                                         </tbody>
                                     </table>
@@ -258,7 +257,7 @@ export default function bill({ style, tableButton, closeTablesUI, getTableNumber
                             </div>
                             {
                                 togglePayment && (
-                                    <Payment setTogglePayment={setTogglePayment} total={total} tableNumber={tableNumber} />
+                                    <Payment setTogglePayment={setTogglePayment} total={total} tableNumber={localTableNumber} />
                                 )
                             }
                         </div>

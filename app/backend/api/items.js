@@ -49,8 +49,8 @@ router.post('/editOrder', async (req, res) => {
 // need table number, its order, and quantity
 router.post('/sendOrder', async (req, res) => {
   try {
-    const { tableNumb, selectedItems } = req.body;
-    let _id = parseInt(tableNumb);
+    const { tableNumber, selectedItems } = req.body;
+    let _id = parseInt(tableNumber);
     let status = 'open';
     let db = await connectToDatabase();
 
@@ -78,7 +78,7 @@ router.post('/sendOrder', async (req, res) => {
         await orders.insertOne({ item : { id , name, category_id } , quantity, table_id : _id });
       }
     }
-    res.status(200).json({ message: `The order is sent to the table ${tableNumb}!` });
+    res.status(200).json({ message: `The order is sent to the table ${tableNumber}!` });
     
   } catch (error) {
     console.error('Error:', error);

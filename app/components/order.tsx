@@ -52,7 +52,7 @@ type OrderProps = {
     categoryName: String;
 }
 const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
   const [selectedItems, setSelectedItems] = useState<Item[]>([])
   const [toggleFlash, setToggleFlash] = useState(false)
   const [idToggle, setIdToggle] = useState(0)
@@ -75,8 +75,8 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
       }
     };
 
-    fetchData();
-  }, []);
+    if(data.length == 0) fetchData();
+  }, [data]);
 
   const addItem = (itemId,itemName,category_id) => {
     const newItem: Item = { id: itemId, name: itemName, quantity : 1, category_id  };
@@ -164,7 +164,7 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
                            {item.name}</div>
                       })
                     ) : (
-                      <div>loading ...</div>
+                      <div className='text-white uppercase font-bold text-2xl text-center p-2'>loading ...</div>
                     )
                   }
               </div>

@@ -14,5 +14,16 @@ module.exports = {
       },
     },
   },
+  safelist: [
+    {
+      pattern: /bg-.+-\d+/, // Matches bg-color-shade classes
+    },
+    {
+      pattern: /border-.+-\d+/, // Matches border-color-shade classes
+    },
+    {
+      pattern: /text-.+-\d+/, // Matches text-color-shade classes
+    },
+  ],
   plugins: [],
 }
