@@ -1,4 +1,4 @@
-const { ObjectId } = require('mongodb');
+const { ObjectId, Decimal128  } = require('mongodb');
 const express = require('express');
 const router = express.Router();
 
@@ -11,6 +11,7 @@ router.post('/updateTableInvoice', async (req, res) => {
         let db = await connectToDatabase();
         const tables = db.collection('tables');
         let _id = parseInt(tableNumber);
+        const amountLeftDecimal = Decimal128.fromString(amountLeft.toString());
         // delete the table and orders associated to it
         if(amountLeft <= 0) {
             const orders = db.collection('orders'); 
@@ -21,10 +22,10 @@ router.post('/updateTableInvoice', async (req, res) => {
         } else {
             // upsert will create a new field if it does not exist
             const condition = { _id  }
-            const createNewFields = { $set: { amountLeft } };
+            const createNewFields = { $set: { amountLeft : amountLeftDecimal } };
             await tables.findOneAndUpdate(condition,createNewFields,{ upsert: true });
             color = 'orange'
-            message = `the amount unpaid is $ ${amountLeft} of table no ${tableNumber} is saved.`
+            message = `the amount unpaid is $ ${amountLeftDecimal} of table no ${tableNumber} is saved.`
         }
         res.status(200).json({ color, message });
     } catch (error) {

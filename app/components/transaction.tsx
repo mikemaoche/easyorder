@@ -41,9 +41,11 @@ export default function transaction({payMethod, setPayMethod, total, tableNumber
                 body: JSON.stringify({ tableNumber }),
             });
             const { amountLeft, message } = await response.json()
-            console.log(amountLeft);
             
-            if(amountLeft) setAmountLeft(amountLeft)
+            
+            if(amountLeft) {
+                setAmountLeft(amountLeft.$numberDecimal.toString())
+            }
         } catch (error) {
             console.error('Error:', error);
         }
@@ -72,35 +74,35 @@ export default function transaction({payMethod, setPayMethod, total, tableNumber
     const payBill = () => {
         const substract = amountLeft - currentAmount
         setFlash(true)
-        setAmountLeft(substract)
+        setAmountLeft(substract.toFixed(2))
     }
 
     const handleInputs = (e) => {
         let oldVal = currentAmount.toString()
         let value = e.target.value.toString()
         let updatedValue = oldVal
-        
-        if(oldVal.startsWith('0') && value == '0') oldVal = ''
-        if(oldVal == '' && value == '.') oldVal = '0'
 
+        // delete digits
         if(value == '<-') updatedValue = oldVal.slice(0, oldVal.length-1)
-        let existingDot = oldVal.indexOf('.')
         
         // not dot found then add a dot
+        let existingDot = oldVal.indexOf('.')
         if(existingDot == -1 && value != '<-') updatedValue = oldVal + value
         if(value != '<-' && value != '.') updatedValue = oldVal + value
         
-
+        
         // exceed amount of total then set total
         if(updatedValue > amountLeft) updatedValue = amountLeft.toString()
-        
-        // exceed 2 decimals
-        const decimalPart = updatedValue.toString().split(".")[1];
-        if(decimalPart && decimalPart.length > 2) {
-            updatedValue = oldVal
-        }
-        
+
+        // remove the zero on the front
         updatedValue = updatedValue.replace(/(?<!\d)0+(?=[1-9])/, '')
+
+        // Limit to two decimal
+        let decimalPart = updatedValue.split('.')[1];
+        if (decimalPart && decimalPart.length > 2) {
+            decimalPart = decimalPart.slice(0, 2);
+            updatedValue = updatedValue.split('.')[0] + '.' + decimalPart;
+        }
 
         setCurrentAmount(updatedValue)
     }
@@ -112,7 +114,7 @@ export default function transaction({payMethod, setPayMethod, total, tableNumber
                 <div className='w-6/12 mx-auto my-4 text-right text-xl m-2 text-white'>
                     <p>table no {tableNumber ? tableNumber : null}</p>
                     <p>total $ {total ? total.toFixed(2) : 'null'}</p>
-                    <p>amount unpaid <span className={ flash ? 'text-rose-500 transition-all delay-1000 duration-500 ease-out ': null}>$ {amountLeft ? amountLeft.toFixed(2) : null}</span></p>
+                    <p>amount unpaid <span className={ flash ? 'text-rose-500 transition-all delay-1000 duration-500 ease-out ': null}>$ {amountLeft ? amountLeft : null}</span></p>
                 </div>
                 <div className='bg-white w-6/12 m-auto p-2'>
                     <p>current amount</p>
