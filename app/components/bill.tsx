@@ -39,9 +39,10 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
                 console.error('Error:', error);
               }
             };
-        
-        if(!toggle && tables.length == 0) fetchTables()
+        fetchTables()
+      }, []);
 
+    useEffect(() => {
         const fetchOrders = async () => {
             try {
                 const url = `http://localhost:8000/api/items/fetchOrders`
@@ -69,8 +70,8 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
             }
         }
         
-        if(toggle && localTableNumber != 0 ) fetchOrders()
-      }, [tableNumber, tables, loadData, localTableNumber]);
+        if(toggle) fetchOrders()
+    }, [toggle])
 
     const sendTableNumber = (e: React.MouseEvent<HTMLButtonElement>) => {
         const table = e.currentTarget.value

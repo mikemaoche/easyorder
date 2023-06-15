@@ -45,22 +45,22 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
             const updateSelectedItems = () => {
                 const response = fetchOrders()
                 response.then(orders => {
-                    const updatedItems =  orders.map((order) => ({
-                            id: order.item.id,
-                            name: order.item.name,
-                            quantity: order.quantity,
-                        }))
-                    
-                    // update quantity if the item is duplicated
-                    updatedItems.forEach(updatedItem => {
-                        const existingItem = selectedItems.find(item => item.id === updatedItem.id);
-                        if (existingItem) {
-                            existingItem.quantity += updatedItem.quantity;
-                        } else {
-                        selectedItems.push(updatedItem);
-                        }
-                    });
-
+                    if(orders != undefined && orders.length > 0) {
+                        const updatedItems =  orders.map((order) => ({
+                                id: order.item.id,
+                                name: order.item.name,
+                                quantity: order.quantity,
+                            }))
+                        // update quantity if the item is duplicated
+                        updatedItems.forEach(updatedItem => {
+                            const existingItem = selectedItems.find(item => item.id === updatedItem.id);
+                            if (existingItem) {
+                                existingItem.quantity += updatedItem.quantity;
+                            } else {
+                            selectedItems.push(updatedItem);
+                            }
+                        });
+                    } 
                     setSelectedItems([... selectedItems])
                 })
                 

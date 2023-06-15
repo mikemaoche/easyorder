@@ -69,7 +69,8 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
           },
           body: JSON.stringify({ itemType }),
         });
-        setData(await response.json());
+        let data = await response.json()
+        setData(data);
       } catch (error) {
         console.error('Error:', error);
       }

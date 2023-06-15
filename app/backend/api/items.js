@@ -11,7 +11,8 @@ router.post('/', async (req, res) => {
     let db = await connectToDatabase();
     const collection = db.collection(itemType); 
     const items = await collection.find({}).toArray();
-    res.status(200).json({ items, message: 'Items are fetched successfully' });
+    if(items.length > 0) res.status(200).json({ items, message: 'Items are fetched successfully' });
+    else res.status(200).json({ items : [], message: 'No items are fetched successfully' });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'Failed to fetch items from MongoDB' });
@@ -51,7 +52,6 @@ router.post('/sendOrder', async (req, res) => {
   try {
     const { tableNumber, selectedItems } = req.body;
     let _id = parseInt(tableNumber);
-    let status = 'open';
     let db = await connectToDatabase();
 
     // register table
@@ -60,7 +60,7 @@ router.post('/sendOrder', async (req, res) => {
       await database.createCollection('tables');
     }
     if(!await tables.findOne({ _id })) {
-      await tables.insertOne({ _id , status });
+      await tables.insertOne({ _id  });
     }
     
 
@@ -96,7 +96,7 @@ router.get('/fetchTables', async (req, res) => {
     if (collection.length === 0) {
       await database.createCollection('tables');
     }
-    const tables = await collection.find({status: 'open'}).toArray();
+    const tables = await collection.find().toArray();
     res.status(200).json({ tables, message: 'Orders are fetched successfully' });
     
   } catch (error) {

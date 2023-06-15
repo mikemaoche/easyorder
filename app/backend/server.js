@@ -54,6 +54,9 @@ app.use(express.static(path.join(__dirname, 'build')));
 const itemsRouter = require('../backend/api/items');
 app.use('/api/items', itemsRouter);
 
+const transactionsRouter = require('../backend/api/transactions');
+app.use('/api/transactions', transactionsRouter);
+
 app.listen(port, () => {
   console.log(`API server running on port ${port}`);
 });

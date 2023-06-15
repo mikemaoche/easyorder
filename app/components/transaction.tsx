@@ -5,34 +5,68 @@ export default function transaction({payMethod, setPayMethod, total, tableNumber
     const [currentAmount, setCurrentAmount] = useState(0)
     const [flash, setFlash] = useState(false)
 
-    useEffect(()=>{
-        if(amountLeft == 0) closeBill()
+    useEffect(() => {
+        if(amountLeft <= 0) closeBill()
         const timeout = setTimeout(() =>{
             setFlash(false)
         },3000)
         return () => {
             clearTimeout(timeout);
         };
-
     },[amountLeft, payMethod, flash])
+
+    useEffect(() =>{
+        fetchAmountLeft()
+    }, [])
 
     const cancelPayment = () => {
         if(amountLeft > 0 && amountLeft != total) {
             updateBill()
-            setNotify({state:true, color:'orange', message:`the amount unpaid is $ ${amountLeft} of table no ${tableNumber} is saved.`})
         }
-        setPayMethod(null)
     }
 
     const closeBill = () => {
         updateBill()
-        setNotify({state:true, color:'green', message:`the table no ${tableNumber} is paid and now closed.`})
-        setPayMethod(null)
     }
 
-    const updateBill = () => {
-        console.log('fetch');
-        
+    const fetchAmountLeft = async () => {
+        try {
+            const url = `http://localhost:8000/api/transactions/fetchOneAmountLeft`
+            const response = await fetch(url,
+            {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ tableNumber }),
+            });
+            const { amountLeft, message } = await response.json()
+            console.log(amountLeft);
+            
+            if(amountLeft) setAmountLeft(amountLeft)
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    const updateBill = async () => {
+        try {
+            const url = `http://localhost:8000/api/transactions/updateTableInvoice`
+            const response = await fetch(url,
+            {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ tableNumber, amountLeft }),
+            });
+            const { color, message } = await response.json()
+            setNotify({state:true, color, message })
+            setPayMethod(null)
+            
+        } catch (error) {
+            console.error('Error:', error);
+        }
     }
 
     const payBill = () => {
@@ -76,9 +110,9 @@ export default function transaction({payMethod, setPayMethod, total, tableNumber
             <div className='flex flex-col font-bold bg-slate-600 p-4'>
                 <p className='font-bold text-4xl text-green-400'>transaction by {payMethod}</p>
                 <div className='w-6/12 mx-auto my-4 text-right text-xl m-2 text-white'>
-                    <p>table no {tableNumber}</p>
-                    <p>total $ {total.toFixed(2)}</p>
-                    <p>amount unpaid <span className={ flash ? 'text-rose-500 transition-all delay-1000 duration-500 ease-out ': null}>$ {amountLeft.toFixed(2)}</span></p>
+                    <p>table no {tableNumber ? tableNumber : null}</p>
+                    <p>total $ {total ? total.toFixed(2) : 'null'}</p>
+                    <p>amount unpaid <span className={ flash ? 'text-rose-500 transition-all delay-1000 duration-500 ease-out ': null}>$ {amountLeft ? amountLeft.toFixed(2) : null}</span></p>
                 </div>
                 <div className='bg-white w-6/12 m-auto p-2'>
                     <p>current amount</p>
