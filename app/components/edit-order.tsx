@@ -13,7 +13,7 @@ interface Props {
 itemId: string;
 }
 
-const EditOrder: React.FC<Props>  = ({itemId, itemType, setEditToggle}) => {
+const EditOrder: React.FC<Props>  = ({itemId, itemType, productName, setEditToggle}) => {
     const [data,setData] = useState(null)
 
     useEffect(() => {
@@ -56,23 +56,43 @@ const EditOrder: React.FC<Props>  = ({itemId, itemType, setEditToggle}) => {
         <div className={`fixed inset-0 flex items-center justify-center h-screen `} >
             <div className='w-[98%] h-[98%] bg-white relative ...'>
                 <div className='flex justify-center items-center'>
-                    <p className="text-4xl font-bold uppercase text-center m-4">edit {itemId}</p>
+                    <p className="text-4xl font-bold uppercase text-center m-4">edit {productName}</p>
                     <button 
                         name="modal"
                         onClick={closeModal}
                         className="text-4xl font-bold uppercase text-center m-4 p-4 bg-red-400 hover:bg-red-600 hover:text-white absolute right-0 top-0"
                         >x</button>
                 </div>
-                <div className='bg-slate-200 w-7/12 h-[90%] m-auto'>
+                <div className='bg-slate-200 w-7/12 h-[90%] m-auto p-2 text-4xl flex'>
                     {
                        console.log(data)
                     }
                     {
                        data ? (
-                        <ul>
-                          {Object.keys(data).map((key) => (
-                            <li key={key}>
-                              <strong>{key}:</strong> {JSON.stringify(data[key])}
+                        <ul className='bg-red-400 w-full m-2 p-2 uppercase'>
+                          {
+                            Object.keys(data).map((key) => (
+                            <li key={key} className='m-4'>
+                              {
+                                (key == 'name' || key == 'type' || key == 'country') && (<><strong>{key}:</strong> <span>{JSON.stringify(data[key]).replace(/"/g, '')}</span></>) ||
+                                key == 'price' && (<><strong>{key}:</strong><span> ${JSON.stringify(data[key].$numberDecimal).replace(/"/g, '')}</span></>) ||
+                                key == 'drink_type' && 
+                                (
+                                  <>
+                                    <strong>specific type: </strong><span>{JSON.stringify(data[key].name).replace(/"/g, '')}</span>
+                                    <p><strong>served by</strong></p>
+                                    {
+                                      JSON.parse(JSON.stringify(data[key].served)).map((detail,index) => (
+                                          <div className='flex gap-2 items-center'>
+                                            <input className='w-20 h-20 m-2' type="checkbox" checked={detail.type == 'glass' ? true : false}/>
+                                            <p>{detail.type} (${detail.price.$numberDecimal})</p>
+                                          </div>
+                                        )
+                                      )
+                                    }
+                                  </>
+                                )
+                              }
                             </li>
                           ))}
                         </ul>

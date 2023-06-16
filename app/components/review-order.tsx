@@ -20,6 +20,7 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
     const [tableButton, setTableButton] = useState(false)
     const [clearButton, setClearButton] = useState(true)
     const [dataLoaded, setDataLoaded] = useState(false)
+    const [productName, setproductName] = useState(null)
 
     useEffect(() => {
         // check if there is a table number and an item before sending
@@ -110,9 +111,10 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
         editQuantity(id, quantity);
     }
 
-    const editItem = (id: any) => {
+    const editItem = (id: any, productName) => {
         setItemId(id)
         setIsEditOrderOn(true)
+        setproductName(productName)
     }
 
     const setEditToggle = (status: boolean | ((prevState: boolean) => boolean)) => {
@@ -191,7 +193,7 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
                                                     <td className='border-b p-4'>
                                                         <div className='flex gap-2'>
                                                             <button onClick={() => removeItem(item.id)} className="bg-red-400 hover:bg-red-600 hover:text-white text-sm uppercase font-bold w-full p-2">x</button>
-                                                            <button onClick={() => editItem(item.id)} className="bg-green-400 hover:bg-green-600 hover:text-white text-sm uppercase font-bold w-full p-2">!</button>
+                                                            <button onClick={() => editItem(item.id,item.name)} className="bg-green-400 hover:bg-green-600 hover:text-white text-sm uppercase font-bold w-full p-2">!</button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -213,7 +215,7 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
             </div>
             {
                 isEditOrderOn && (
-                    <EditOrder itemId={itemId} setEditToggle={setEditToggle} />
+                    <EditOrder itemId={itemId} productName={productName} setEditToggle={setEditToggle} />
                 )
             }
             {
