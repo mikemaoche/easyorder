@@ -196,7 +196,7 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
                                                     </td>
                                                 </tr>
                                         )
-                                    }) : <tr><td ><div className='uppercase font-bold text-2xl text-center'>{selectedItems && selectedItems.length == 0  ? 'no items listed' : 'loading...'}</div></td></tr>
+                                    }) : <tr><td ><div className='uppercase font-bold text-2xl text-center m-4'>{selectedItems && selectedItems.length == 0  ? 'no orders found' : 'loading...'}</div></td></tr>
                                 }
                             </tbody>
                         </table>

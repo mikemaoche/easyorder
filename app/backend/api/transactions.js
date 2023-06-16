@@ -6,7 +6,7 @@ const { connectToDatabase, closeDatabaseConnection } = require('../server');
 
 router.post('/updateTableInvoice', async (req, res) => {
     try {
-        let color = '', message = ''
+        let color = '', message = '', pay = false;
         const { tableNumber, amountLeft } = req.body;
         let db = await connectToDatabase();
         const tables = db.collection('tables');
@@ -15,19 +15,20 @@ router.post('/updateTableInvoice', async (req, res) => {
         // delete the table and orders associated to it
         if(amountLeft <= 0) {
             const orders = db.collection('orders'); 
-            await orders.deleteMany({ table_id : _id})
-            await tables.findOneAndDelete({ _id })
-            color = 'green'
-            message = `the table no ${tableNumber} is paid and now closed.`
+            await orders.deleteMany({ table_id : _id});
+            await tables.findOneAndDelete({ _id });
+            color = 'green';
+            message = `the table no ${tableNumber} is paid and now closed.`;
+            pay = true;
         } else {
             // upsert will create a new field if it does not exist
-            const condition = { _id  }
+            const condition = { _id  };
             const createNewFields = { $set: { amountLeft : amountLeftDecimal } };
             await tables.findOneAndUpdate(condition,createNewFields,{ upsert: true });
-            color = 'orange'
-            message = `the amount unpaid is $ ${amountLeftDecimal} of table no ${tableNumber} is saved.`
+            color = 'orange';
+            message = `the amount unpaid is $ ${amountLeftDecimal} of table no ${tableNumber} is saved.`;
         }
-        res.status(200).json({ color, message });
+        res.status(200).json({ pay, color, message });
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ message: 'Failed to save the amount left.' });

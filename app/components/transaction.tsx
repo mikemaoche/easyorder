@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-export default function transaction({payMethod, setPayMethod, total, tableNumber, setNotify}) {
+export default function transaction({payMethod, setPayMethod, setTablePaid, total, tableNumber, setNotify}) {
     const [amountLeft, setAmountLeft] = useState(total)
     const [currentAmount, setCurrentAmount] = useState(0)
     const [flash, setFlash] = useState(false)
@@ -22,6 +22,8 @@ export default function transaction({payMethod, setPayMethod, total, tableNumber
     const cancelPayment = () => {
         if(amountLeft > 0 && amountLeft != total) {
             updateBill()
+        } else if(amountLeft == total) {
+            setPayMethod(null)
         }
     }
 
@@ -41,8 +43,6 @@ export default function transaction({payMethod, setPayMethod, total, tableNumber
                 body: JSON.stringify({ tableNumber }),
             });
             const { amountLeft, message } = await response.json()
-            
-            
             if(amountLeft) {
                 setAmountLeft(amountLeft.$numberDecimal.toString())
             }
@@ -62,10 +62,10 @@ export default function transaction({payMethod, setPayMethod, total, tableNumber
                 },
                 body: JSON.stringify({ tableNumber, amountLeft }),
             });
-            const { color, message } = await response.json()
+            const { pay, color, message } = await response.json()
             setNotify({state:true, color, message })
             setPayMethod(null)
-            
+            setTablePaid(pay)
         } catch (error) {
             console.error('Error:', error);
         }

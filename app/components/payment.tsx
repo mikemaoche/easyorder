@@ -2,10 +2,14 @@ import React, { useEffect, useState } from 'react'
 import Transaction from './transaction'
 import Notification from './notification'
 
-export default function payment({setTogglePayment, total, tableNumber }) {
+export default function payment({ setNotifyBill, setTogglePayment, total, tableNumber, isTablePaid, setTablePaid}) {
     const [payMethod, setPayMethod] = useState(null)
     const [notify,setNotify] = useState({state:false, color:'', message:''})
 
+    useEffect(() => {
+        if(isTablePaid) setNotifyBill(notify)
+    },[notify])
+    
     const closeWindow = () =>{
         setTogglePayment(false)
     }
@@ -29,10 +33,12 @@ export default function payment({setTogglePayment, total, tableNumber }) {
                 }
                 {
                     payMethod && (
-                        <Transaction payMethod={payMethod} setPayMethod={setPayMethod} total={total} tableNumber={tableNumber} setNotify={setNotify}/>
+                        <Transaction payMethod={payMethod} setPayMethod={setPayMethod} setTablePaid={setTablePaid} total={total} tableNumber={tableNumber} setNotify={setNotify}/>
                     )
                 }
-                <Notification notify={notify} setNotify={setNotify} duration={Math.max(notify.message.length * 70, 2000)} />
+                {
+                    !isTablePaid && notify.color == 'orange' ? <Notification notify={notify} setNotify={setNotify} duration={Math.max(notify.message.length * 70, 2000)} /> : null
+                }
             </div>
 
         </div>

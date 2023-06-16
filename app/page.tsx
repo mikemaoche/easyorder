@@ -67,30 +67,32 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-10">
-      {/* header */}
-      <div className="flex xl:items-center space-x-4 p-4 md:p-10">
-        <header className="font-bold text-4xl animate-pulse text-white">EasyOrder</header>
-        {/* <img className="bg-white rounded-full p-1" src="/images/tequila-sunrise.png" alt="" /> */}
-      </div>
+    <main >
+         {/* header */}
+        <div className="flex items-center bg-slate-900 w-fit border border-2 text-center p-6 m-6 rounded-lg">
+          <header className="font-bold text-xl text-white"><span className="text-emerald-300 animate-pulse">E</span>asy<span className="text-emerald-300 animate-pulse">O</span>rder</header>
+          <img className="m-auto rounded-full p-1" src="/images/tequila-sunrise.png" alt="" />
+        </div>
       {/* layout */}
-      <div className={show ? "text-black flex flex-wrap md:w-8/12 lg:w-8/12 justify-center gap-2" : "hidden"}>
-        {
-          category.map(item =>(
-            <div key={item.name} className="w-4/12 md:w-4/12 lg:w-3/12 bg-white hover:bg-orange-300 md:uppercase text-center ...">
-              <button onClick={(e) => displayItem(item.name, e)} className="w-full p-4 " data-button>
-                  <p>{item.name}</p>
-                  <img className="w-8 md:w-16 m-auto" src={"/svg/" + item.img + ".svg"} alt="" />
-              </button>
-            </div>
-          ))
-        }
-      </div>
-      { !show && categoryName != 'Bill' &&  categoryName != 'popular selection' && <Order itemType={itemType} categoryName={categoryName} /> } 
-      { !show && categoryName == 'Bill' && <Bill /> } 
-      { !show && categoryName == 'popular selection' && <Popularity /> } 
-      <div className={!show ? "w-4/12 md:w-4/12 lg:w-3/12 bg-white hover:bg-orange-300 md:uppercase text-center m-2 ..." : "hidden"}>
-        <button onClick={backToMenu} className="w-full p-4 uppercase font-bold">back</button>
+      <div className="flex min-h-screen flex-col items-center p-10">
+        <div className={show ? "text-black flex flex-wrap md:w-8/12 lg:w-8/12 justify-center gap-2" : "hidden"}>
+          {
+            category.map(item =>(
+              <div key={item.name} className="w-4/12 md:w-4/12 lg:w-3/12 bg-white hover:bg-orange-300 md:uppercase text-center ...">
+                <button onClick={(e) => displayItem(item.name, e)} className="w-full p-4 " data-button>
+                    <p>{item.name}</p>
+                    <img className="w-8 md:w-16 m-auto" src={"/svg/" + item.img + ".svg"} alt="" />
+                </button>
+              </div>
+            ))
+          }
+        </div>
+        { !show && categoryName != 'Bill' &&  categoryName != 'popular selection' && <Order itemType={itemType} categoryName={categoryName} /> } 
+        { !show && categoryName == 'Bill' && <Bill title={'tables'} /> } 
+        { !show && categoryName == 'popular selection' && <Popularity /> } 
+        <div className={!show ? "w-4/12 md:w-4/12 lg:w-3/12 bg-white hover:bg-orange-300 md:uppercase text-center m-2 ..." : "hidden"}>
+          <button onClick={backToMenu} className="w-full p-4 uppercase font-bold">back</button>
+        </div>
       </div>
     </main>
   )

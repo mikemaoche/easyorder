@@ -2,8 +2,9 @@ import React, { useRef, useEffect, useState } from 'react'
 import { jsPDF } from 'jspdf'
 import "jspdf-autotable"
 import Payment from './payment'
+import Notification from './notification'
   
-export default function bill({ style, tableButton, closeTablesUI, setTableNumber, tableNumber, setDataLoaded , setSelectedItems}) {
+export default function bill({ style, tableButton, closeTablesUI, setTableNumber, tableNumber, setDataLoaded , setSelectedItems, title}) {
     const [nbOfTables, setNumbTables] = useState(52)
     const [toggle,setToggle] = useState(false)
     const modalRef = useRef(null)
@@ -21,24 +22,10 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
     const [togglePayment, setTogglePayment] = useState(false)
     const [loadData, setLoadData] = useState(true)
     const [localTableNumber,setLocalTableNumber] = useState(0)
+    const [isTablePaid, setTablePaid] = useState(false)
+    const [notify,setNotify] = useState({state:false, color:'', message:''})
     
     useEffect(() => {
-        const fetchTables = async () => {
-            try {
-                const url = `http://localhost:8000/api/items/fetchTables`
-                const response = await fetch(url,
-                {
-                  method: 'GET',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                });
-                const { tables, message } = await response.json();
-                setTables(tables);
-              } catch (error) {
-                console.error('Error:', error);
-              }
-            };
         fetchTables()
       }, []);
 
@@ -71,7 +58,29 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
         }
         
         if(toggle) fetchOrders()
-    }, [toggle])
+        if(isTablePaid) {
+            closeModal()
+            fetchTables()
+        }
+
+    }, [toggle, isTablePaid])
+
+    const fetchTables = async () => {
+        try {
+            const url = `http://localhost:8000/api/items/fetchTables`
+            const response = await fetch(url,
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+            const { tables, message } = await response.json();
+            setTables(tables);
+          } catch (error) {
+            console.error('Error:', error);
+          }
+        };
 
     const sendTableNumber = (e: React.MouseEvent<HTMLButtonElement>) => {
         const table = e.currentTarget.value
@@ -163,10 +172,14 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
         <div>
             <div className={`flex flex-col items-center ${style}`}>
                 {
+                    isTablePaid ? <Notification notify={notify} setNotify={setNotify} duration={Math.max(notify.message.length * 70, 2000)} /> : null
+                }
+                {
                     tableButton && (
                         <button onClick={() => closeTables()} className="text-4xl font-bold uppercase text-center m-4 p-4 bg-red-400 hover:bg-red-600 hover:text-white absolute right-0 top-0">x</button>
                     )
                 }
+                <div className='text-white text-4xl uppercase font-bold m-4'>{title}</div>
                 <div className='flex flex-wrap md:w-8/12 lg:w-8/12 justify-center gap-2 m-2'>
                 {
                     Array.from({ length: nbOfTables }).map((_, index) => (
@@ -258,7 +271,7 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
                             </div>
                             {
                                 togglePayment && (
-                                    <Payment setTogglePayment={setTogglePayment} total={total} tableNumber={localTableNumber} />
+                                    <Payment setNotifyBill={setNotify} setTogglePayment={setTogglePayment} total={total} tableNumber={localTableNumber} isTablePaid={isTablePaid} setTablePaid={setTablePaid} />
                                 )
                             }
                         </div>
