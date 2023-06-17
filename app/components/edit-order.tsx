@@ -15,6 +15,11 @@ itemId: string;
 
 const EditOrder: React.FC<Props>  = ({itemId, itemType, productName, setEditToggle}) => {
     const [data,setData] = useState(null)
+    const [takeaway, setTakeaway] = useState(false)
+    const [checkboxStates, setCheckboxStates] = useState({
+      glass: true
+    });
+    const [selectedOption, setSelectedOption] = useState('');
 
     useEffect(() => {
         if(itemId != null) {
@@ -52,56 +57,107 @@ const EditOrder: React.FC<Props>  = ({itemId, itemType, productName, setEditTogg
         setEditToggle(false)
     }
 
+    const handleChecked = (e) => {
+      const { name, checked } = e.target
+      setCheckboxStates((prevState) => ({
+        ...prevState,
+        [name]: checked,
+      }));
+    }
+
+    // select box for the spirits
+    const handleOptionClick = (option) => {
+      setSelectedOption(option);
+    };
+
     return (
-        <div className={`fixed inset-0 flex items-center justify-center h-screen `} >
-            <div className='w-[98%] h-[98%] bg-white relative ...'>
-                <div className='flex justify-center items-center'>
-                    <p className="text-4xl font-bold uppercase text-center m-4">edit {productName}</p>
-                    <button 
-                        name="modal"
-                        onClick={closeModal}
-                        className="text-4xl font-bold uppercase text-center m-4 p-4 bg-red-400 hover:bg-red-600 hover:text-white absolute right-0 top-0"
-                        >x</button>
-                </div>
-                <div className='bg-slate-200 w-7/12 h-[90%] m-auto p-2 text-4xl flex'>
+        <div className={`fixed inset-0 flex items-center justify-center `} >
+            <div className='w-6/12 h-[800px] p-4 m-2 bg-white relative ...'>
+                <p className="text-4xl font-bold uppercase text-center my-4">edit {productName}</p>
+                <div className='bg-slate-200 w-full h-[499px] max-h-[500px] overflow-y-auto p-2 text-2xl ...'>
                     {
                        console.log(data)
                     }
                     {
                        data ? (
-                        <ul className='bg-red-400 w-full m-2 p-2 uppercase'>
+                        <ul className='w-full m-auto uppercase'>
                           {
-                            Object.keys(data).map((key) => (
-                            <li key={key} className='m-4'>
+                            Object.keys(data).map((key, index) => (
+                            <li key={`${key}_${index}`} className='my-4 px-2'>
                               {
-                                (key == 'name' || key == 'type' || key == 'country') && (<><strong>{key}:</strong> <span>{JSON.stringify(data[key]).replace(/"/g, '')}</span></>) ||
+                                (key == 'name' || key == 'type' || key == 'country') && (<><strong>{key}: </strong><span>{JSON.stringify(data[key]).replace(/"/g, '')}</span></>) ||
                                 key == 'price' && (<><strong>{key}:</strong><span> ${JSON.stringify(data[key].$numberDecimal).replace(/"/g, '')}</span></>) ||
                                 key == 'drink_type' && 
                                 (
                                   <>
                                     <strong>specific type: </strong><span>{JSON.stringify(data[key].name).replace(/"/g, '')}</span>
-                                    <p><strong>served by</strong></p>
+                                    <p><strong>served per</strong></p>
                                     {
                                       JSON.parse(JSON.stringify(data[key].served)).map((detail,index) => (
-                                          <div className='flex gap-2 items-center'>
-                                            <input className='w-20 h-20 m-2' type="checkbox" checked={detail.type == 'glass' ? true : false}/>
+                                          <div key={`${key}_${index}`} className='flex gap-2 items-center'>
+                                            <input onChange={(e) => handleChecked(e)} name={detail.type} className='w-20 h-20 my-2' type="checkbox" checked={checkboxStates[detail.type]}/>
                                             <p>{detail.type} (${detail.price.$numberDecimal})</p>
                                           </div>
                                         )
                                       )
                                     }
                                   </>
+                                ) ||
+                                (key == 'takeaway') && 
+                                (
+                                  <div className='flex items-center gap-2'>
+                                    <strong>{key}: </strong> <input onChange={(e) => handleChecked(e)} name={key} className='w-20 h-20 my-2' type="checkbox" checked={takeaway}/>
+                                  </div>
+                                ) ||
+                                (key == 'options') && 
+                                (
+                                  <>
+                                    <strong>Can come with:</strong>
+                                    {
+                                      JSON.parse(JSON.stringify(data[key])).map((option,index) => (
+                                            <p key={`${key}_${index}`}>{option}</p>
+                                        )
+                                      )
+                                    }
+                                    <p className='text-sm lowercase'><span className='text-red-500 font-bold'>*</span>check menu for more info...</p>
+                                  </>
+                                ) ||
+                                (key == 'popularity_id') && (<><strong>ranking: </strong><span>{JSON.stringify(data[key]).replace(/"/g, '')}</span></>) ||
+                                key == 'list' && 
+                                (
+                                  <>
+                                    <p className='uppercase font-bold'>available options: <span className='font-normal lowercase'>(touch one)</span></p>
+                                    <div className=''>
+                                      {
+                                        JSON.parse(JSON.stringify(data[key])).map((spirit,index) => (
+                                              <button key={`${spirit.name}_${index}`} className={`px-4 py-2 m-2 rounded text-white uppercase
+                                                ${spirit.name === selectedOption ? 'bg-blue-500' : 'bg-gray-400'}`} 
+                                                onClick={() => handleOptionClick(spirit.name)}
+                                              >
+                                                {spirit.name}
+                                              </button>
+                                          )
+                                        )
+                                      }
+                                    </div>
+                                  </>
                                 )
                               }
                             </li>
                           ))}
+                          <li className='my-4 px-2'>
+                            <div className='flex items-center gap-2 '>
+                              <label className='font-bold' htmlFor="note">notes: </label>
+                              <input className='p-2 w-full' type="text" name="note" id="note" placeholder='Write Here...'/>
+                            </div>
+                          </li>
                         </ul>
                       ) : <div>loading ...</div>
                     }
                 </div>
-                <div className='flex flex-col absolute bottom-0 right-0 gap-2 m-3'>
-                    <button name="modal" onClick={closeModal} className="text-4xl font-bold uppercase text-center p-4 bg-red-400 hover:bg-red-600 hover:text-white ">cancel</button>
-                    <button className="text-4xl font-bold uppercase text-center p-4 bg-slate-400 hover:bg-slate-600 hover:text-white ">save</button>
+                <div className='absolute w-full left-0 bottom-0 flex flex-col'>
+                    <button name="modal" onClick={closeModal} className="text-4xl mx-2 font-bold uppercase text-center p-4 bg-red-400 hover:bg-red-600 hover:text-white ">cancel</button>
+                    <button className="text-4xl m-2 font-bold uppercase text-center p-4 bg-slate-400 hover:bg-slate-600 hover:text-white ">save</button>
                 </div>
             </div>
         </div>

@@ -74,7 +74,7 @@ export default function Home() {
           <img className="m-auto rounded-full p-1" src="/images/tequila-sunrise.png" alt="" />
         </div>
       {/* layout */}
-      <div className="flex min-h-screen flex-col items-center p-10">
+      <div className="flex flex-col items-center">
         <div className={show ? "text-black flex flex-wrap md:w-8/12 lg:w-8/12 justify-center gap-2" : "hidden"}>
           {
             category.map(item =>(

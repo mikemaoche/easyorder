@@ -123,7 +123,9 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
               />
             <div className='flex flex-col xl:items-center'>
               <p className='text-white sm:text-xl md:text-2xl lg:text-4xl uppercase font-bold m-4'>{categoryName}</p>
-              <div className='uppercase text-center select-none flex flex-wrap md:w-8/12 lg:w-8/12 justify-center gap-2 m-2'>
+              <div className='uppercase text-center select-none flex flex-wrap 
+              md:w-4/12 lg:w-6/12 justify-center gap-2 m-2 
+              overflow-y-auto max-h-[500px] scroll-smooth '>
                   {
                       data && data.items ? (
                       data.items.map((item: { type: string; _id: React.Key | null | undefined; drink_type: { name: string | number; }; name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.PromiseLikeOfReactNode | null | undefined; category_id: string; }) => {
