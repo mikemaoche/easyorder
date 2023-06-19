@@ -80,19 +80,21 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
   }, [data]);
 
   const addItem = (itemId,itemName,category_id) => {
-    const newItem: Item = { id: itemId, name: itemName, quantity : 1, category_id  };
-    const existingItemIndex = selectedItems.findIndex((item) => item.id === itemId);
-    if (existingItemIndex !== -1) {
-      // Item already exists, update its quantity
-      const updatedItems = [...selectedItems];
-      updatedItems[existingItemIndex].quantity += 1;
-      setSelectedItems(updatedItems);
-      setIdToggle(updatedItems[existingItemIndex].id)
-      setToggleFlash(true)
-    } else {
-      // Item is not in the array, add it as a new item
-      setSelectedItems([...selectedItems, newItem]);
+    let newItem: Item = { id: itemId, name: itemName, quantity : 1, category_id  };
+    const existingItem = selectedItems.find(item => item.id === itemId);
+    if(existingItem){
+        // Generate a unique identifier for the new item
+        const uniqueId = `${itemId}_${Date.now()}`;
+        newItem = {
+          id: uniqueId,
+          name: itemName,
+          quantity: 1,
+          category_id
+        };
+
     }
+    // Item is not in the array, add it as a new item
+    setSelectedItems([...selectedItems, newItem]);
     
   }
 
@@ -118,7 +120,7 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
 
     return (
         <div>
-            <Review itemType={itemType} idToggle={idToggle} toggleFlash={toggleFlash}
+            <Review idToggle={idToggle} toggleFlash={toggleFlash} categoryName={categoryName}
               resetBucketList={resetBucketList} deleteSelectedItem={deleteItem} editQuantity={editQuantity} selectedItems={selectedItems} setSelectedItems={setSelectedItems}
               />
             <div className='flex flex-col xl:items-center'>

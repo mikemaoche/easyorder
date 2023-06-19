@@ -13,20 +13,21 @@ interface Props {
 itemId: string;
 }
 
-const EditOrder: React.FC<Props>  = ({itemId, itemType, productName, setEditToggle}) => {
+const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEditToggle , selectedItems, setSelectedItems}) => {
     const [data,setData] = useState(null)
-    const [takeaway, setTakeaway] = useState(false)
+    const [takeaway, setTakeaway] = useState(categoryName == 'takeaway' ? true : false)
+    const [note, setNote] = useState("")
+    const [alcohol, setAlcohol] = useState(false)
+    const [decaf, setDecaf] = useState(false)
     const [checkboxStates, setCheckboxStates] = useState({
       glass: true
     });
     const [selectedOption, setSelectedOption] = useState('');
-
+    
     useEffect(() => {
         if(itemId != null) {
             const fetchItem = async () => {
                 try {
-                    console.log(itemId);
-                
                   const url = `http://localhost:8000/api/items/editOrder`
                   const response = await fetch(url,
                   {
@@ -37,9 +38,29 @@ const EditOrder: React.FC<Props>  = ({itemId, itemType, productName, setEditTogg
                     body: JSON.stringify({ itemId }),
                   });
                   let data = await response.json()
+                  const selectedItem = selectedItems.find(item => item.id === itemId);
                   console.log(data);
                   
+                  if (selectedItem) {
+                    // update fields
+                    if (selectedItem.takeaway != undefined && selectedItem.takeaway !== data.item.takeaway) {
+                      setTakeaway(selectedItem.takeaway)
+                    }
+
+                    if (selectedItem.note !== data.item.note) {
+                      setNote(selectedItem.note)
+                    }
+
+                    if (selectedItem.alcohol !== data.item.alcohol) {
+                      setAlcohol(selectedItem.alcohol)
+                    }
+
+                    if (selectedItem.decafe !== data.item.decafe) {
+                      setDecaf(selectedItem.decafe)
+                    }
+                  } 
                   setData(data.item);
+                  
                 } catch (error) {
                   console.error('Error:', error);
                 }
@@ -57,6 +78,21 @@ const EditOrder: React.FC<Props>  = ({itemId, itemType, productName, setEditTogg
         setEditToggle(false)
     }
 
+    const handleTakeaways = () => {
+      // change only if it's not in takeaway menu
+      if(categoryName != 'takeaway') {
+        setTakeaway(!takeaway)
+      }
+    }
+
+    const handleAlcohol= () => {
+      setAlcohol(!alcohol)
+    }
+
+    const handleDecaf= () => {
+      setDecaf(!decaf)
+    }
+
     const handleChecked = (e) => {
       const { name, checked } = e.target
       setCheckboxStates((prevState) => ({
@@ -70,14 +106,30 @@ const EditOrder: React.FC<Props>  = ({itemId, itemType, productName, setEditTogg
       setSelectedOption(option);
     };
 
+    const handleNote = (e) => {
+      setNote(e.target.value)
+    }
+
+
+    const saveModifications = () => {
+      const itemIndex = selectedItems.findIndex(item => item.id === itemId);
+      if (itemIndex !== -1) {
+        const updatedItem = { ...selectedItems[itemIndex] };
+        updatedItem.takeaway = takeaway;
+        updatedItem.alcohol = alcohol;
+        updatedItem.decafe = decaf;
+        updatedItem.note = note;
+        selectedItems[itemIndex] = updatedItem;
+        setSelectedItems(selectedItems);
+      }
+      closeModal()
+    }
+    
     return (
         <div className={`fixed inset-0 flex items-center justify-center `} >
             <div className='w-6/12 h-[800px] p-4 m-2 bg-white relative ...'>
                 <p className="text-4xl font-bold uppercase text-center my-4">edit {productName}</p>
                 <div className='bg-slate-200 w-full h-[499px] max-h-[500px] overflow-y-auto p-2 text-2xl ...'>
-                    {
-                       console.log(data)
-                    }
                     {
                        data ? (
                         <ul className='w-full m-auto uppercase'>
@@ -106,7 +158,7 @@ const EditOrder: React.FC<Props>  = ({itemId, itemType, productName, setEditTogg
                                 (key == 'takeaway') && 
                                 (
                                   <div className='flex items-center gap-2'>
-                                    <strong>{key}: </strong> <input onChange={(e) => handleChecked(e)} name={key} className='w-20 h-20 my-2' type="checkbox" checked={takeaway}/>
+                                    <strong>{key}: </strong> <input onChange={() => handleTakeaways()} name={key} className='w-20 h-20 my-2' type="checkbox" checked={takeaway}/>
                                   </div>
                                 ) ||
                                 (key == 'options') && 
@@ -141,14 +193,28 @@ const EditOrder: React.FC<Props>  = ({itemId, itemType, productName, setEditTogg
                                       }
                                     </div>
                                   </>
+                                ) ||
+                                (key == 'alcohol' || key == 'decafe') && (
+                                  <>
+                                    <div className='flex items-center gap-2'>
+                                      <strong>{key}: </strong> 
+                                      <input onChange={key == 'alcohol' ? () => handleAlcohol() : () => handleDecaf()} name={key} className='w-20 h-20 my-2' type="checkbox" checked={key == 'alcohol' ? alcohol : decaf}/>
+                                    </div>
+                                  </>
+                                ) ||
+                                key == 'prices' && (
+                                  <>
+                                    <strong>actual price: </strong><span>$ {data[key][!alcohol ? 0 : 1].$numberDecimal} ({alcohol ? 'with' : 'without'} liqueur)</span>
+                                  </>
                                 )
+
                               }
                             </li>
                           ))}
                           <li className='my-4 px-2'>
                             <div className='flex items-center gap-2 '>
-                              <label className='font-bold' htmlFor="note">notes: </label>
-                              <input className='p-2 w-full' type="text" name="note" id="note" placeholder='Write Here...'/>
+                              <label className='font-bold' htmlFor="note">note: </label>
+                              <input onChange={(e) => handleNote(e)} className='p-2 w-full' type="text" name="note" id="note" value={note != undefined ? note : ""} placeholder='Write Here...'/>
                             </div>
                           </li>
                         </ul>
@@ -157,7 +223,7 @@ const EditOrder: React.FC<Props>  = ({itemId, itemType, productName, setEditTogg
                 </div>
                 <div className='absolute w-full left-0 bottom-0 flex flex-col'>
                     <button name="modal" onClick={closeModal} className="text-4xl mx-2 font-bold uppercase text-center p-4 bg-red-400 hover:bg-red-600 hover:text-white ">cancel</button>
-                    <button className="text-4xl m-2 font-bold uppercase text-center p-4 bg-slate-400 hover:bg-slate-600 hover:text-white ">save</button>
+                    <button onClick={saveModifications} className="text-4xl m-2 font-bold uppercase text-center p-4 bg-slate-400 hover:bg-slate-600 hover:text-white ">save</button>
                 </div>
             </div>
         </div>

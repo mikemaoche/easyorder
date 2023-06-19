@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import EditOrder from './edit-order'
 import Table from './bill'
 
@@ -8,7 +8,7 @@ interface ChildComponentProps {
     setSelectedItems: React.Dispatch<React.SetStateAction<Order[]>>;
 }
 
-export default function Review({ itemType, idToggle, toggleFlash, resetBucketList, deleteSelectedItem, editQuantity, selectedItems, setSelectedItems}){
+export default function Review({ idToggle, toggleFlash, categoryName, resetBucketList, deleteSelectedItem, editQuantity, selectedItems, setSelectedItems}){
     const TABLE_STYLE = 'fixed top-20 left-0 right-0 bottom-20 m-auto z-10 bg-emerald-400 w-6/12 p-4 border-4 justify-center'
     const table = 'unselected'
     const [canSend, setCanSend] = useState(true)
@@ -43,39 +43,15 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
         }
 
         if(tableNumber != table && !dataLoaded) {
-            const updateSelectedItems = () => {
-                const response = fetchOrders()
-                response.then(orders => {
-                    if(orders != undefined && orders.length > 0) {
-                        const updatedItems =  orders.map((order) => ({
-                                id: order.item.id,
-                                name: order.item.name,
-                                quantity: order.quantity,
-                            }))
-                        // update quantity if the item is duplicated
-                        updatedItems.forEach(updatedItem => {
-                            const existingItem = selectedItems.find(item => item.id === updatedItem.id);
-                            if (existingItem) {
-                                existingItem.quantity += updatedItem.quantity;
-                            } else {
-                            selectedItems.push(updatedItem);
-                            }
-                        });
-                    } 
-                    setSelectedItems([... selectedItems])
-                })
-                
-               
-            }
-            setDataLoaded(true)
-            setSelectedItems(updateSelectedItems);
-            closeTablesUI()
+            fetchOrders()
         }
-
+        
     }, [toggleFlash, selectedItems, tableNumber, setSelectedItems]);
+
 
     const fetchOrders = async () => {
         try {
+            
             const url = `http://localhost:8000/api/items/fetchOrders`
             const response = await fetch(url,
             {
@@ -86,11 +62,24 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
                 body: JSON.stringify({ tableId : tableNumber }),
             });
             const { orders, message } = await response.json()
-            if (orders) {
-                return Promise.resolve(orders);
-            } else {
-                return Promise.reject(new Error(message || "No orders found."));
+            if(orders != undefined && orders.length > 0) {
+                const updatedItems =  orders.map((order) => ({
+                        id: order.item.id,
+                        name: order.item.name,
+                        quantity: order.quantity,
+                        takeaway : order.takeaway
+                    }))
+                setSelectedItems(prevItems => {
+                    console.log({prevItems});
+                    
+                    if (Array.isArray(prevItems)) {
+                        return [...prevItems, ...updatedItems];
+                    } else {
+                        return updatedItems;
+                    }
+                    });
             }
+            setDataLoaded(true)
             
             } catch (error) {
             console.error('Error:', error);
@@ -178,9 +167,9 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
                             <tbody className=''>
                                 {
                                     selectedItems && selectedItems.length > 0 ? 
-                                    selectedItems.map((item: { name: boolean | React.Key | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.PromiseLikeOfReactNode | null | undefined; id: any; quantity: string | number | readonly string[] | undefined; }) => {
+                                    selectedItems.map((item: { name: boolean | React.Key | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.PromiseLikeOfReactNode | null | undefined; id: any; quantity: string | number | readonly string[] | undefined; }, index) => {
                                         return (
-                                                <tr key={item.name} className='align-top'>
+                                                <tr key={item.id} className='align-top'>
                                                     <td className='border-b border-l p-4'>
                                                     <p className='truncate text-center'>{item.name}</p>
                                                     </td>
@@ -215,7 +204,7 @@ export default function Review({ itemType, idToggle, toggleFlash, resetBucketLis
             </div>
             {
                 isEditOrderOn && (
-                    <EditOrder itemId={itemId} productName={productName} setEditToggle={setEditToggle} />
+                    <EditOrder itemId={itemId} categoryName={categoryName} productName={productName} setEditToggle={setEditToggle} selectedItems={selectedItems} setSelectedItems={setSelectedItems} />
                 )
             }
             {

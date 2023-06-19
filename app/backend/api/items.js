@@ -26,7 +26,8 @@ router.post('/editOrder', async (req, res) => {
     const { itemId } = req.body;
     let db = await connectToDatabase();
     const collections = await db.listCollections().toArray();
-    const searchQuery = { _id : new ObjectId(itemId) }; 
+    const updatedItemIds = itemId.split('_')[0];
+    const searchQuery = { _id : new ObjectId(updatedItemIds) }; 
     let item = null;
     for (const collectionInfo of collections) {
       const collectionName = collectionInfo.name;
@@ -124,8 +125,10 @@ router.post('/fetchOrders', async (req, res) => {
 
 
       const itemIds = orders.flatMap(order => order.item.id);
+      const updatedItemIds = itemIds.map(itemId => itemId.split('_')[0]);
+
       // convert to ObjectId
-      const objectIdArray = itemIds.map(itemId => new ObjectId(itemId));
+      const objectIdArray = updatedItemIds.map(itemId => new ObjectId(itemId));
       for (const order of orders) {
         const dynamicCollection = db.collection(order.item.category_id);
         const itemDetails = await dynamicCollection.find({ _id : { $in: objectIdArray } }).toArray();

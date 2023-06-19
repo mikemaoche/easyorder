@@ -43,7 +43,6 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
                 });
                 const { orders, message } = await response.json()
                 let sum = 0;
-                
                 if(orders) {
                     orders.forEach(order => {
                         sum += order.item.price;
@@ -76,7 +75,7 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
               },
             });
             const { tables, message } = await response.json();
-            setTables(tables);
+            setTables(tables == undefined ? [] : tables);
           } catch (error) {
             console.error('Error:', error);
           }
@@ -84,7 +83,6 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
 
     const sendTableNumber = (e: React.MouseEvent<HTMLButtonElement>) => {
         const table = e.currentTarget.value
-        setSelectedItems([])
         setDataLoaded(false)
         setTableNumber(table)
         closeTables()
@@ -184,15 +182,32 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
                 {
                     Array.from({ length: nbOfTables }).map((_, index) => (
                     <div key={index + 1}>
-                        <button 
-                            onClick={tableButton ? (e) => sendTableNumber(e) : (e) => openModal(e)}
-                            disabled={tableNumber == index + 1 ? true : false} 
-                            className={`${tables && tables.find(table => table._id == index + 1) ?  'text-white bg-yellow-600' : 'bg-white' } 
-                            ${tableNumber == index + 1 ? 'disabled:opacity-70 cursor-no-drop' : 'hover:bg-orange-400'}
-                            text-xl w-16 font-bold rounded-full p-4`} 
-                            value={index + 1}>
-                             {index + 1}
-                        </button>
+                        {
+                            tableButton && (
+                                <button 
+                                    onClick={tableButton ? (e) => sendTableNumber(e) : (e) => openModal(e)}
+                                    disabled={tableNumber == index + 1 ? true : false} 
+                                    className={`${tables && tables.find(table => table._id == index + 1) ?  'text-white bg-yellow-600' : 'bg-white' } 
+                                    ${tableNumber == index + 1 ? 'disabled:opacity-70 cursor-no-drop' : 'hover:bg-orange-400'}
+                                    text-xl w-16 font-bold rounded-full p-4`} 
+                                    value={index + 1}>
+                                    {index + 1}
+                                </button>
+                            )
+                        }
+                        {
+                            !tableButton && (
+                                <button 
+                                    onClick={tableButton ? (e) => sendTableNumber(e) : (e) => openModal(e)}
+                                    disabled={tables && tables.find(table => table._id != index + 1) ? true : tables.length == 0 ? true : false} 
+                                    className={`${tables && tables.find(table => table._id == index + 1) ?  'text-white bg-yellow-600 hover:bg-orange-400' :  tables.length == 0 ?
+                                    'disabled:opacity-70 cursor-no-drop' : 'disabled:opacity-70 cursor-no-drop' } 
+                                    text-xl w-16 font-bold rounded-full p-4 bg-white `} 
+                                    value={index + 1}>
+                                    {index + 1}
+                                </button>
+                            )
+                        }
                     </div>
                     ))
                 }
