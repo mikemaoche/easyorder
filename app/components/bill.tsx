@@ -30,6 +30,7 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
       }, []);
 
     useEffect(() => {
+        console.log({ toggle });
         const fetchOrders = async () => {
             try {
                 const url = `http://localhost:8000/api/items/fetchOrders`
@@ -42,6 +43,7 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
                     body: JSON.stringify({ tableId : localTableNumber }),
                 });
                 const { orders, message } = await response.json()
+                
                 let sum = 0;
                 if(orders) {
                     orders.forEach(order => {
@@ -60,6 +62,8 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
         if(isTablePaid) {
             closeModal()
             fetchTables()
+            setTablePaid(false)
+            setTogglePayment(false)
         }
 
     }, [toggle, isTablePaid])
@@ -75,6 +79,8 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
               },
             });
             const { tables, message } = await response.json();
+            console.log('fetch tables',{tables});
+            
             setTables(tables == undefined ? [] : tables);
           } catch (error) {
             console.error('Error:', error);
@@ -165,7 +171,7 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
     const togglePaymentModal = () => {
         setTogglePayment(true)
     }
-
+    
     return (
         <div>
             <div className={`flex flex-col items-center ${style}`}>
@@ -199,9 +205,8 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
                             !tableButton && (
                                 <button 
                                     onClick={tableButton ? (e) => sendTableNumber(e) : (e) => openModal(e)}
-                                    disabled={tables && tables.find(table => table._id != index + 1) ? true : tables.length == 0 ? true : false} 
-                                    className={`${tables && tables.find(table => table._id == index + 1) ?  'text-white bg-yellow-600 hover:bg-orange-400' :  tables.length == 0 ?
-                                    'disabled:opacity-70 cursor-no-drop' : 'disabled:opacity-70 cursor-no-drop' } 
+                                    disabled={tables && tables.find(table => table._id == index + 1) ? false : true} 
+                                    className={`${tables && tables.find(table => table._id == index + 1) ?  'text-white bg-yellow-600 hover:bg-orange-400' :'disabled:opacity-70 cursor-no-drop' } 
                                     text-xl w-16 font-bold rounded-full p-4 bg-white `} 
                                     value={index + 1}>
                                     {index + 1}

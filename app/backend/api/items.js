@@ -117,7 +117,7 @@ router.post('/fetchOrders', async (req, res) => {
     if (tables.length === 0) {
       await database.createCollection('tables');
     } 
-    const foundTable = tables.findOne({ _id: tableId });
+    const foundTable = tables.findOne({ _id: parseInt(tableId) });
     if(foundTable !== null) {
       // order without price
       const collect = db.collection('orders'); 
