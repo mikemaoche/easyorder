@@ -61,7 +61,7 @@ router.post('/sendOrder', async (req, res) => {
     const { tableNumber, selectedItems } = req.body;
     let _id = parseInt(tableNumber);
     let db = await connectToDatabase();
-
+    console.log(selectedItems);
     // register table
     const tables = db.collection('tables');
     if (tables.length === 0) {
@@ -100,10 +100,12 @@ router.post('/sendOrder', async (req, res) => {
 
       } else {
         // insert new data
-        if(takeaway != undefined) await orders.insertOne({ item : { id , name, category_id, takeaway, note } , quantity, table_id : _id });
-        if(takeaway != undefined && decafe != undefined) await orders.insertOne({ item : { id , name, category_id, takeaway, decafe, note } , quantity, table_id : _id });
-        if(selectedOption != undefined) await orders.insertOne({ item : { id , name, category_id, selectedOption, note } , quantity, table_id : _id });
-        // if(alcohol && decafe != undefined) await orders.insertOne({ item : { id , name, category_id, alcohol, decafe, note } , quantity, table_id : _id });
+        let dynamicQuery = { id , name, category_id, takeaway, note }; // food by default
+        if(decafe != undefined) dynamicQuery = { id , name, category_id, takeaway, note, decafe }; // coffees
+        if(alcohol != undefined) dynamicQuery = { id , name, category_id, takeaway, note, decafe, alcohol }; // affogato
+        if(category_id == 'drinks') dynamicQuery = { id , name, category_id, note }; // drinks
+        if(selectedOption != undefined) dynamicQuery = { id , name, category_id, note,  brand: selectedOption };
+        await orders.insertOne({ item : dynamicQuery , quantity, table_id : _id });
       }
     }
     res.status(200).json({ message: `The order is sent to the table ${tableNumber}!` });
@@ -161,7 +163,8 @@ router.post('/fetchOrders', async (req, res) => {
         const itemDetails = await dynamicCollection.find({ _id : { $in: objectIdArray } }).toArray();
         
         if(itemDetails) {
-          itemDetails.map((item) => {
+          console.log(itemDetails);
+          itemDetails.forEach((item) => {
               order.item.price = item.price ? parseFloat(item.price.toString()) : item.drink_type ? parseFloat(item.drink_type.served[0].price.toString()) : null;
               order.item.takeaway = item.takeaway;
               order.item.note = item.note

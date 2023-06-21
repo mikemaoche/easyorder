@@ -50,6 +50,7 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
         if(tableNumber != table && !dataLoaded) {
             fetchOrders()
         }
+        console.log(selectedItems);
         
     }, [toggleFlash, selectedItems, tableNumber]);
 
@@ -71,6 +72,7 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
                         name: order.item.name,
                         quantity: order.quantity,
                         takeaway : order.takeaway,
+                        price: order.price,
                         readable: 'readonly'
                     }))
                 setSelectedItems(prevItems => {

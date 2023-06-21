@@ -84,9 +84,16 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
   
   }, [selectedItems])
   
+  const addCoffeeField = (itemName) => {
+    if(itemName == 'cappucino' || itemName == 'latte' || itemName == 'flat white') return false
+    if(itemName == 'long black' || itemName == 'macchiato') return false
+    if(itemName == 'mocchaccino' || itemName == 'iced coffee' || itemName == 'special coffees') return false
+    return undefined
+  }
 
   const addItem = (itemId,itemName,category_id) => {
-    let newItem: Item = { id: itemId, name: itemName, quantity : 1, category_id , readable : 'editable' };
+    let decafe = addCoffeeField(itemName.toLowerCase())
+    let newItem: Item = { id: itemId, name: itemName, quantity : 1, category_id , readable : 'editable', decafe, };
     const existingItem = selectedItems.find(item => item.id === itemId);
     if(existingItem){
         // Generate a unique identifier for the new item
@@ -95,7 +102,9 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
           id: uniqueId,
           name: itemName,
           quantity: 1,
-          category_id
+          category_id,
+          readable : 'editable',
+          decafe,
         };
 
     }

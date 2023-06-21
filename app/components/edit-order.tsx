@@ -18,7 +18,7 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
     const [takeaway, setTakeaway] = useState(categoryName == 'takeaway' ? true : false)
     const [note, setNote] = useState("")
     const [alcohol, setAlcohol] = useState(false)
-    const [decaf, setDecaf] = useState(false)
+    const [decafe, setDecafe] = useState(false)
     const [checkboxStates, setCheckboxStates] = useState({
       glass: true
     });
@@ -45,9 +45,9 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
                     // update fields
                     setTakeaway(data.item.takeaway? data.item.takeaway : selectedItem.takeaway)
                     setNote(data.item.note? data.item.note : selectedItem.note)
-                    setDecaf(data.item.decafe? data.item.decafe : selectedItem.decafe)
+                    setDecafe(data.item.decafe? data.item.decafe : selectedItem.decafe)
                     setAlcohol(data.item.alcohol? data.item.alcohol : selectedItem.alcohol) // affogato
-                    setSelectedOption(data.item.selectedOption? data.item.selectedOption : selectedItem.selectedOption) // all other alcohols
+                    setSelectedOption(data.item.brand? data.item.brand : selectedItem.selectedOption) // all other alcohols
                   } 
                   setData(data.item);
                   
@@ -79,8 +79,8 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
       setAlcohol(!alcohol)
     }
 
-    const handleDecaf= () => {
-      setDecaf(!decaf)
+    const handleDecafe = () => {
+      setDecafe(!decafe)
     }
 
     const handleChecked = (e) => {
@@ -110,7 +110,7 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
         updatedItem.takeaway = takeaway;
         updatedItem.alcohol = alcohol;
         updatedItem.selectedOption = selectedOption;
-        updatedItem.decafe = decaf;
+        updatedItem.decafe = decafe;
         updatedItem.note = note;
         updatedItem.readable = 'editable';
         selectedItems[itemIndex] = updatedItem;
@@ -131,7 +131,7 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
                             Object.keys(data).map((key, index) => (
                             <li key={`${key}_${index}`} className='my-4 px-2'>
                               {
-                                (key == 'name' || key == 'type' || key == 'country') && (<><strong>{key}: </strong><span>{JSON.stringify(data[key]).replace(/"/g, '')}</span></>) ||
+                                (key == 'name' || key == 'type' || key == 'country' || key == 'brand') && (<><strong>{key}: </strong><span>{JSON.stringify(data[key]).replace(/"/g, '')}</span></>) ||
                                 key == 'price' && (<><strong>{key}:</strong><span> ${JSON.stringify(data[key].$numberDecimal).replace(/"/g, '')}</span></>) ||
                                 key == 'drink_type' && 
                                 (
@@ -192,7 +192,7 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
                                   <>
                                     <div className='flex items-center gap-2'>
                                       <strong>{key}: </strong> 
-                                      <input onChange={key == 'alcohol' ? () => handleAlcohol() : () => handleDecaf()} name={key} className='w-20 h-20 my-2' type="checkbox" checked={key == 'alcohol' ? alcohol : decaf}/>
+                                      <input onChange={key == 'alcohol' ? () => handleAlcohol() : () => handleDecafe()} name={key} className='w-20 h-20 my-2' type="checkbox" checked={key == 'alcohol' ? alcohol : decafe}/>
                                     </div>
                                   </>
                                 ) ||
