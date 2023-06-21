@@ -60,9 +60,11 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
         if(toggle) fetchOrders()
         if(isTablePaid) {
             closeModal()
-            fetchTables()
-            setTablePaid(false)
             setTogglePayment(false)
+            setTimeout(() => {
+                setTablePaid(false)
+                fetchTables()
+            },2500)
         }
 
     }, [toggle, isTablePaid])
