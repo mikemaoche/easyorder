@@ -20,7 +20,9 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
     const [alcohol, setAlcohol] = useState(false)
     const [decafe, setDecafe] = useState(false)
     const [checkboxStates, setCheckboxStates] = useState({
-      glass: true
+      glass: true,
+      bottle: false,
+      carafe: false,
     });
     const [selectedOption, setSelectedOption] = useState('');
     
@@ -85,9 +87,13 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
 
     const handleChecked = (e) => {
       const { name, checked } = e.target
+      console.log(name);
+      
       setCheckboxStates((prevState) => ({
         ...prevState,
-        [name]: checked,
+        glass : name == 'glass' ? checked : false,
+        bottle : name == 'bottle' ? checked : false,
+        carafe : name == 'carafe' ? checked : false,
       }));
     }
 
@@ -141,7 +147,7 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
                                     {
                                       JSON.parse(JSON.stringify(data[key].served)).map((detail,index) => (
                                           <div key={`${key}_${index}`} className='flex gap-2 items-center'>
-                                            <input onChange={(e) => handleChecked(e)} name={detail.type} className='w-20 h-20 my-2' type="checkbox" checked={checkboxStates[detail.type]}/>
+                                            <input onChange={(e) => handleChecked(e)} name={detail.type.split(' ')[0]} className='w-20 h-20 my-2' type="radio" checked={checkboxStates[detail.type.split(' ')[0]]}/>
                                             <p>{detail.type} (${detail.price.$numberDecimal})</p>
                                           </div>
                                         )

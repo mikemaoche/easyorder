@@ -163,7 +163,6 @@ router.post('/fetchOrders', async (req, res) => {
         const itemDetails = await dynamicCollection.find({ _id : { $in: objectIdArray } }).toArray();
         
         if(itemDetails) {
-          console.log(itemDetails);
           itemDetails.forEach((item) => {
               order.item.price = item.price ? parseFloat(item.price.toString()) : item.drink_type ? parseFloat(item.drink_type.served[0].price.toString()) : null;
               order.item.takeaway = item.takeaway;
