@@ -39,25 +39,15 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
                   });
                   let data = await response.json()
                   const selectedItem = selectedItems.find(item => item.id === itemId);
-                  console.log(data);
+                  console.log(selectedItem);
                   
                   if (selectedItem) {
                     // update fields
-                    if (selectedItem.takeaway != undefined && selectedItem.takeaway !== data.item.takeaway) {
-                      setTakeaway(selectedItem.takeaway)
-                    }
-
-                    if (selectedItem.note !== data.item.note) {
-                      setNote(selectedItem.note)
-                    }
-
-                    if (selectedItem.alcohol !== data.item.alcohol) {
-                      setAlcohol(selectedItem.alcohol)
-                    }
-
-                    if (selectedItem.decafe !== data.item.decafe) {
-                      setDecaf(selectedItem.decafe)
-                    }
+                    setTakeaway(data.item.takeaway? data.item.takeaway : selectedItem.takeaway)
+                    setNote(data.item.note? data.item.note : selectedItem.note)
+                    setDecaf(data.item.decafe? data.item.decafe : selectedItem.decafe)
+                    setAlcohol(data.item.alcohol? data.item.alcohol : selectedItem.alcohol) // affogato
+                    setSelectedOption(data.item.selectedOption? data.item.selectedOption : selectedItem.selectedOption) // all other alcohols
                   } 
                   setData(data.item);
                   
@@ -103,6 +93,8 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
 
     // select box for the spirits
     const handleOptionClick = (option) => {
+      console.log(option);
+      
       setSelectedOption(option);
     };
 
@@ -117,8 +109,10 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
         const updatedItem = { ...selectedItems[itemIndex] };
         updatedItem.takeaway = takeaway;
         updatedItem.alcohol = alcohol;
+        updatedItem.selectedOption = selectedOption;
         updatedItem.decafe = decaf;
         updatedItem.note = note;
+        updatedItem.readable = 'editable';
         selectedItems[itemIndex] = updatedItem;
         setSelectedItems(selectedItems);
       }
@@ -223,7 +217,7 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
                 </div>
                 <div className='absolute w-full left-0 bottom-0 flex flex-col'>
                     <button name="modal" onClick={closeModal} className="text-4xl mx-2 font-bold uppercase text-center p-4 bg-red-400 hover:bg-red-600 hover:text-white ">cancel</button>
-                    <button onClick={saveModifications} className="text-4xl m-2 font-bold uppercase text-center p-4 bg-slate-400 hover:bg-slate-600 hover:text-white ">save</button>
+                    <button onClick={saveModifications} className="text-4xl m-2 font-bold uppercase text-center p-4 bg-slate-400 hover:bg-slate-600 hover:text-white ">done</button>
                 </div>
             </div>
         </div>

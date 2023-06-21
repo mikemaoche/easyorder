@@ -86,7 +86,7 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
   
 
   const addItem = (itemId,itemName,category_id) => {
-    let newItem: Item = { id: itemId, name: itemName, quantity : 1, category_id , class : 'editable' };
+    let newItem: Item = { id: itemId, name: itemName, quantity : 1, category_id , readable : 'editable' };
     const existingItem = selectedItems.find(item => item.id === itemId);
     if(existingItem){
         // Generate a unique identifier for the new item
@@ -105,9 +105,9 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
 
   const sortTableRows = () => {
     selectedItems.sort((a, b) => {
-      if (a.class === 'readonly' && b.class !== 'readonly') {
+      if (a.readable === 'readonly' && b.readable !== 'readonly') {
         return -1;
-      } else if (a.class !== 'readonly' && b.class === 'readonly') {
+      } else if (a.readable !== 'readonly' && b.readable === 'readonly') {
         return 1;  // Move objects that has readonly to top
       } else {
         return 0; // Leave the order unchanged

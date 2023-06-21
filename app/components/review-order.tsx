@@ -71,11 +71,11 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
                         name: order.item.name,
                         quantity: order.quantity,
                         takeaway : order.takeaway,
-                        class:'readonly'
+                        readable: 'readonly'
                     }))
                 setSelectedItems(prevItems => {
                     if (Array.isArray(prevItems)) {
-                        const filteredItems = prevItems.filter(item => item.class !== 'readonly'); // remove previous items that have readonly
+                        const filteredItems = prevItems.filter(item => item.readable !== 'readonly'); // remove previous items that have readonly
                         return [...filteredItems, ...updatedItems];
                     } else {
                         return updatedItems;
@@ -131,7 +131,7 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
             console.log('send order', selectedItems);
             try {
                 
-                let filterItems = selectedItems.filter(item => !item.class || item.class !== 'readonly');
+                let filterItems = selectedItems.filter(item => item.readable !== 'readonly');
                 const url = `http://localhost:8000/api/items/sendOrder`
                 const response = await fetch(url,
                 {
@@ -173,21 +173,21 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
                                     selectedItems && selectedItems.length > 0 ? 
                                     selectedItems.map((item: { name: boolean | React.Key | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.PromiseLikeOfReactNode | null | undefined; id: any; quantity: string | number | readonly string[] | undefined; }, index) => {
                                         return (
-                                                <tr key={item.id} className={`${item.class && item.class == 'readonly' ? 'bg-gray-200' : null} align-top`}>
+                                                <tr key={item.id} className={`${item.readable && item.readable == 'readonly' ? 'bg-gray-200' : null} align-top`}>
                                                     <td className='border-b border-l p-4'>
                                                     <p className='truncate text-center'>{item.name}</p>
                                                     </td>
                                                     <td className='border-b p-4'>
                                                         <input type="number"  name="quantity" min="1" max="999" onChange={(e) => handleChange(item.id, e)}
-                                                            disabled={item.class == 'readonly'}
+                                                            disabled={item.readable == 'readonly'}
                                                             className={`border w-16 text-right transition-colors duration-500 
                                                             ${item.id == idToggle && flash ? 'border-green-400 font-black' : 'border-gray-300'}`} 
                                                             value={item.quantity} />
                                                     </td>
                                                     <td className='border-b p-4'>
                                                         <div className='flex gap-2'>
-                                                            <button onClick={() => removeItem(item.id)} disabled={item.class == 'readonly'} className={`${item.class == 'readonly' ? 'disabled:opacity-70 cursor-no-drop' :  'hover:bg-red-600 hover:text-white'} bg-red-400 text-sm uppercase font-bold w-full p-2`}>x</button>
-                                                            <button onClick={() => editItem(item.id,item.name)} disabled={item.class == 'readonly'} className={`${item.class == 'readonly' ? 'disabled:opacity-70 cursor-no-drop' :  'hover:bg-green-600 hover:text-white'}  bg-green-400 text-sm uppercase font-bold w-full p-2`}>!</button>
+                                                            <button onClick={() => removeItem(item.id)} disabled={item.readable == 'readonly'} className={`${item.readable == 'readonly' ? 'disabled:opacity-70 cursor-no-drop' :  'hover:bg-red-600 hover:text-white'} bg-red-400 text-sm uppercase font-bold w-full p-2`}>x</button>
+                                                            <button onClick={() => editItem(item.id,item.name)} className={`hover:bg-green-600 hover:text-white bg-green-400 text-sm uppercase font-bold w-full p-2`}>!</button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -201,7 +201,7 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
                 <div>
                     <p className="text-right text-xl uppercase font-bold p-4">table {tableNumber}</p>
                     <div className='flex gap-2 flex-row-reverse m-2 border-1'>
-                        <button onClick={() => sendOrder()} disabled={canSend} className={`${canSend?  'disabled:opacity-70 cursor-no-drop' : 'hover:bg-slate-600 hover:text-white' } bg-slate-400 rounded-full text-sm uppercase font-bold p-4`}>send</button>
+                        <button onClick={() => sendOrder()} disabled={canSend} className={`${canSend?  'disabled:opacity-70 cursor-no-drop' : 'hover:bg-slate-600 hover:text-white' } bg-slate-400 rounded-full text-sm uppercase font-bold p-4`}>send & save</button>
                         <button onClick={() => openTablesUI()} disabled={tableButton} className={`${tableButton?  'disabled:opacity-70 cursor-no-drop' : 'hover:bg-slate-600 hover:text-white' } bg-slate-400 rounded-full text-sm uppercase font-bold p-4`}>table</button>
                         <button onClick={clearAll} disabled={clearButton} className={`${clearButton ? 'disabled:opacity-70 cursor-no-drop' : 'hover:bg-red-600 hover:text-white'} bg-red-400 text-sm uppercase font-bold p-4`} >clear all</button>
                     </div>

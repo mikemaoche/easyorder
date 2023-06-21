@@ -25,21 +25,28 @@ router.post('/editOrder', async (req, res) => {
   try {
     const { itemId } = req.body;
     let db = await connectToDatabase();
-    const collections = await db.listCollections().toArray();
-    const updatedItemIds = itemId.split('_')[0];
-    const searchQuery = { _id : new ObjectId(updatedItemIds) }; 
-    let item = null;
-    for (const collectionInfo of collections) {
-      const collectionName = collectionInfo.name;
-      const collection = db.collection(collectionName);
-      item = await collection.findOne(searchQuery);
-      if (item) {
+    const queryOrder = { "item.id" : itemId };
+    const collection = db.collection('orders');
+    const existingOrder  = await collection.findOne(queryOrder);
+    if(existingOrder) {
+      const { item } = existingOrder
+      res.status(200).json({ item, message: `the product ${itemId} is fetched` });
+    } else {
+      const collections = await db.listCollections().toArray();
+      const updatedItemIds = itemId.split('_')[0];
+      const searchQuery = { _id : new ObjectId(updatedItemIds) }; 
+      for (const collectionInfo of collections) {
+        const collectionName = collectionInfo.name;
+        const collection = db.collection(collectionName);
+        const item  = await collection.findOne(searchQuery);
+        if (item) {
         res.status(200).json({ item, message: `the product ${itemId} is fetched` });
-        break;
+          break;
+        }
       }
     }
-    
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: `Failed to fetch the item from MongoDB` });
   } finally {
@@ -63,20 +70,40 @@ router.post('/sendOrder', async (req, res) => {
     if(!await tables.findOne({ _id })) {
       await tables.insertOne({ _id  });
     }
-    
 
     // register order
     const orders = db.collection('orders');
     if (orders.length === 0) {
       await database.createCollection('orders');
     }
-    for (const { id, name , quantity, category_id } of selectedItems) {
+    for (const { id, name , quantity, category_id, takeaway, decafe, alcohol, note, selectedOption } of selectedItems) {
       const existingOrder = await orders.findOne({ 'item.id': id, table_id: _id });
+      // update orders (takeaway can be food and coffees)
       if(existingOrder) {
-        await orders.updateOne({ 'item.id': id, table_id: _id },
-        { $set: { quantity: existingOrder.quantity + quantity } })
+        console.log('update my existing item', note);
+        // food
+        await orders.updateOne({ 'item.id': id, table_id: _id, 'item.takeaway': { $exists: true } , 'item.decafe': { $exists: false } , 'item.selectedOption': { $exists: false } },
+        { $set: { 'item.takeaway' : takeaway, 'item.note' : note } })
+
+        // coffees
+        await orders.updateOne({ 'item.id': id, table_id: _id, 'item.takeaway': { $exists: true } , 'item.decafe': { $exists: true }, 'item.selectedOption': { $exists: false }  },
+        { $set: { 'item.takeaway': takeaway, 'item.decafe' : decafe, 'item.note' : note } })
+
+        // all liqueurs & spirits 
+        await orders.updateOne({ 'item.id': id, table_id: _id, 'item.selectedOption': { $exists: true } },
+        { $set: { 'item.selectedOption': selectedOption, 'item.note' : note } })
+
+        // expresso martini & affogato
+        // await orders.updateOne({ 'item.id': id, table_id: _id, 'item.alcohol': { $exists: true } , 'item.decafe': { $exists: true } },
+        // { $set: { 'item.alcohol': alcohol, 'item.decafe': decafe, 'item.note' : note } })
+
+
       } else {
-        await orders.insertOne({ item : { id , name, category_id } , quantity, table_id : _id });
+        // insert new data
+        if(takeaway != undefined) await orders.insertOne({ item : { id , name, category_id, takeaway, note } , quantity, table_id : _id });
+        if(takeaway != undefined && decafe != undefined) await orders.insertOne({ item : { id , name, category_id, takeaway, decafe, note } , quantity, table_id : _id });
+        if(selectedOption != undefined) await orders.insertOne({ item : { id , name, category_id, selectedOption, note } , quantity, table_id : _id });
+        // if(alcohol && decafe != undefined) await orders.insertOne({ item : { id , name, category_id, alcohol, decafe, note } , quantity, table_id : _id });
       }
     }
     res.status(200).json({ message: `The order is sent to the table ${tableNumber}!` });
@@ -137,6 +164,7 @@ router.post('/fetchOrders', async (req, res) => {
           itemDetails.map((item) => {
               order.item.price = item.price ? parseFloat(item.price.toString()) : item.drink_type ? parseFloat(item.drink_type.served[0].price.toString()) : null;
               order.item.takeaway = item.takeaway;
+              order.item.note = item.note
           })
         }
       }
