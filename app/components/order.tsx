@@ -79,8 +79,14 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
     if(data.length == 0) fetchData();
   }, [data]);
 
+  useEffect(() => {
+    sortTableRows()
+  
+  }, [selectedItems])
+  
+
   const addItem = (itemId,itemName,category_id) => {
-    let newItem: Item = { id: itemId, name: itemName, quantity : 1, category_id  };
+    let newItem: Item = { id: itemId, name: itemName, quantity : 1, category_id , class : 'editable' };
     const existingItem = selectedItems.find(item => item.id === itemId);
     if(existingItem){
         // Generate a unique identifier for the new item
@@ -95,7 +101,18 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
     }
     // Item is not in the array, add it as a new item
     setSelectedItems([...selectedItems, newItem]);
-    
+  }
+
+  const sortTableRows = () => {
+    selectedItems.sort((a, b) => {
+      if (a.class === 'readonly' && b.class !== 'readonly') {
+        return -1;
+      } else if (a.class !== 'readonly' && b.class === 'readonly') {
+        return 1;  // Move objects that has readonly to top
+      } else {
+        return 0; // Leave the order unchanged
+      }
+    });
   }
 
   const deleteItem = (id : any) => {

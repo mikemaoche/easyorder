@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { use, useEffect, useRef, useState } from 'react'
 import EditOrder from './edit-order'
 import Table from './bill'
 
@@ -31,9 +31,14 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
 
         const verifyOrder = () => {
             let decision = false
-            if(tableNumber == table && selectedItems && selectedItems.length <= 0)  decision = true;
-            if(tableNumber == table && selectedItems && selectedItems.length >= 0) decision = true;
-            if(selectedItems && selectedItems.length <= 0 && tableNumber != table) decision = true;
+            // table = unselected && check if this item is not read only
+            if(selectedItems.filter(item => !item.class || item.class !== 'readonly').length > 0) {
+                if(tableNumber == table && selectedItems && selectedItems.length <= 0)  decision = true;
+                if(tableNumber == table && selectedItems && selectedItems.length >= 0) decision = true;
+                if(selectedItems && selectedItems.length <= 0 && tableNumber != table) decision = true;
+            } else {
+                decision = true;
+            }
             setCanSend(decision)
         }
         verifyOrder()
@@ -46,12 +51,10 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
             fetchOrders()
         }
         
-    }, [toggleFlash, selectedItems, tableNumber, setSelectedItems]);
-
+    }, [toggleFlash, selectedItems, tableNumber]);
 
     const fetchOrders = async () => {
         try {
-            
             const url = `http://localhost:8000/api/items/fetchOrders`
             const response = await fetch(url,
             {
@@ -67,17 +70,17 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
                         id: order.item.id,
                         name: order.item.name,
                         quantity: order.quantity,
-                        takeaway : order.takeaway
+                        takeaway : order.takeaway,
+                        class:'readonly'
                     }))
                 setSelectedItems(prevItems => {
-                    console.log({prevItems});
-                    
                     if (Array.isArray(prevItems)) {
-                        return [...prevItems, ...updatedItems];
+                        const filteredItems = prevItems.filter(item => item.class !== 'readonly'); // remove previous items that have readonly
+                        return [...filteredItems, ...updatedItems];
                     } else {
                         return updatedItems;
                     }
-                    });
+                });
             }
             setDataLoaded(true)
             
@@ -126,18 +129,19 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
     const sendOrder =  () => {
         const registerOrder = async () => {
             console.log('send order', selectedItems);
-            
             try {
-              const url = `http://localhost:8000/api/items/sendOrder`
-              const response = await fetch(url,
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ tableNumber, selectedItems }),
-              });
-              console.log(response);
+                
+                let filterItems = selectedItems.filter(item => !item.class || item.class !== 'readonly');
+                const url = `http://localhost:8000/api/items/sendOrder`
+                const response = await fetch(url,
+                {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ tableNumber, selectedItems: filterItems }),
+                });
+                console.log(response);
               
             } catch (error) {
               console.error('Error:', error);
@@ -169,20 +173,21 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
                                     selectedItems && selectedItems.length > 0 ? 
                                     selectedItems.map((item: { name: boolean | React.Key | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.PromiseLikeOfReactNode | null | undefined; id: any; quantity: string | number | readonly string[] | undefined; }, index) => {
                                         return (
-                                                <tr key={item.id} className='align-top'>
+                                                <tr key={item.id} className={`${item.class && item.class == 'readonly' ? 'bg-gray-200' : null} align-top`}>
                                                     <td className='border-b border-l p-4'>
                                                     <p className='truncate text-center'>{item.name}</p>
                                                     </td>
                                                     <td className='border-b p-4'>
-                                                        <input type="number"  name="quantity" min="1" max="999" onChange={(e) => handleChange(item.id, e)} 
+                                                        <input type="number"  name="quantity" min="1" max="999" onChange={(e) => handleChange(item.id, e)}
+                                                            disabled={item.class == 'readonly'}
                                                             className={`border w-16 text-right transition-colors duration-500 
                                                             ${item.id == idToggle && flash ? 'border-green-400 font-black' : 'border-gray-300'}`} 
                                                             value={item.quantity} />
                                                     </td>
                                                     <td className='border-b p-4'>
                                                         <div className='flex gap-2'>
-                                                            <button onClick={() => removeItem(item.id)} className="bg-red-400 hover:bg-red-600 hover:text-white text-sm uppercase font-bold w-full p-2">x</button>
-                                                            <button onClick={() => editItem(item.id,item.name)} className="bg-green-400 hover:bg-green-600 hover:text-white text-sm uppercase font-bold w-full p-2">!</button>
+                                                            <button onClick={() => removeItem(item.id)} disabled={item.class == 'readonly'} className={`${item.class == 'readonly' ? 'disabled:opacity-70 cursor-no-drop' :  'hover:bg-red-600 hover:text-white'} bg-red-400 text-sm uppercase font-bold w-full p-2`}>x</button>
+                                                            <button onClick={() => editItem(item.id,item.name)} disabled={item.class == 'readonly'} className={`${item.class == 'readonly' ? 'disabled:opacity-70 cursor-no-drop' :  'hover:bg-green-600 hover:text-white'}  bg-green-400 text-sm uppercase font-bold w-full p-2`}>!</button>
                                                         </div>
                                                     </td>
                                                 </tr>

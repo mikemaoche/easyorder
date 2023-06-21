@@ -30,7 +30,6 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
       }, []);
 
     useEffect(() => {
-        console.log({ toggle });
         const fetchOrders = async () => {
             try {
                 const url = `http://localhost:8000/api/items/fetchOrders`
@@ -79,8 +78,6 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
               },
             });
             const { tables, message } = await response.json();
-            console.log('fetch tables',{tables});
-            
             setTables(tables == undefined ? [] : tables);
           } catch (error) {
             console.error('Error:', error);
