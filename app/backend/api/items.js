@@ -184,24 +184,34 @@ router.post('/fetchOrders', async (req, res) => {
   }
 })
 
-// const orders = db.collection('orders');
+router.get('/getPopularItems', async (req, res) => {
+  try {
+    let db = await connectToDatabase();
+    const popular = db.collection('popular');
+    if (popular.length === 0) {
+      await database.createCollection('popular');
+    }
 
-// orders.aggregate([
-//   {
-//     $group: {
-//       _id: '$orderItem',
-//       totalQuantity: { $sum: '$quantity' }
-//     }
-//   },
-//   { $sort: { totalQuantity: -1 } },
-//   { $limit: 10 }
-// ]).toArray(function (err, result) {
-//   if (err) {
-//     console.error('Error fetching popular items:', err);
-//     return;
-//   }
+  popular.aggregate([
+  {
+    $group: {
+      _id: '$orderItem',
+      totalQuantity: { $sum: '$quantity' }
+    }
+  },
+  { $sort: { totalQuantity: -1 } },
+  { $limit: 10 }
+  ]).toArray();
+  
+    res.status(200).json({ popular, message: `Popular items are fetched` });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: `Failed to fetch popular items from MongoDB` });
+  } finally {
+    await closeDatabaseConnection();
+  }
+})
 
-//   console.log('Popular items:', result);
-// });
+
 
 module.exports = router;

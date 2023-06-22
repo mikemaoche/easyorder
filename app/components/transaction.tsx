@@ -82,17 +82,17 @@ export default function transaction({payMethod, setPayMethod, setTablePaid, tota
         let value = e.target.value.toString()
         let updatedValue = oldVal
 
-        // delete digits
-        if(value == '<-') updatedValue = oldVal.slice(0, oldVal.length-1)
         
         // not dot found then add a dot
         let existingDot = oldVal.indexOf('.')
         if(existingDot == -1 && value != '<-') updatedValue = oldVal + value
         if(value != '<-' && value != '.') updatedValue = oldVal + value
-        
+        console.log({ updatedValue, amountLeft });
         
         // exceed amount of total then set total
-        if(updatedValue > amountLeft) updatedValue = amountLeft.toString()
+        if(parseFloat(updatedValue) >= parseFloat(amountLeft)) updatedValue = amountLeft.toString()
+        // delete digits
+        if(value == '<-') updatedValue = oldVal.slice(0, oldVal.length-1)
 
         // remove the zero on the front
         updatedValue = updatedValue.replace(/(?<!\d)0+(?=[1-9])/, '')
@@ -103,7 +103,8 @@ export default function transaction({payMethod, setPayMethod, setTablePaid, tota
             decimalPart = decimalPart.slice(0, 2);
             updatedValue = updatedValue.split('.')[0] + '.' + decimalPart;
         }
-
+        
+        
         setCurrentAmount(updatedValue)
     }
     
