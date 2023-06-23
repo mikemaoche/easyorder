@@ -255,7 +255,6 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
                                                 orders.forEach((detail) => {
                                                     const ID = detail.item.id.split('_')[0];
                                                     const quantity = detail.quantity;
-                                                    console.log(ID);
                                                     
                                                     if (mergedItems[ID]) {
                                                     // Step 3: Update quantity of existing item
@@ -263,6 +262,7 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
                                                     } else {
                                                     // Step 4: Add new item
                                                     mergedItems[ID] = {
+                                                        _id: ID,
                                                         item: detail.item,
                                                         quantity: quantity,
                                                     };
@@ -271,7 +271,7 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
 
                                                 // Step 5: Render merged items
                                                 return Object.values(mergedItems).map((mergedDetail) => (
-                                                    <tr key={`${mergedDetail.item._id}`}>
+                                                    <tr key={`${mergedDetail._id}`}>
                                                     <td className='p-4 border-b font-medium'>{mergedDetail.item.name}</td>
                                                     <td className='p-4 border-b'>{mergedDetail.quantity}</td>
                                                     <td className='p-4 border-b'>{mergedDetail.item.price}</td>

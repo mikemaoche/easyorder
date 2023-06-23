@@ -41,7 +41,7 @@ export default function Popularity() {
   }
   
   return (
-    <div className='w-8/12 p-4'>
+    <div className='w-6/12 absolute top-10 p-4'>
       <div className='my-4 text-center'>
         <p className='text-4xl uppercase text-white'>our top sellers !!!</p>
       </div>

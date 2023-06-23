@@ -41,7 +41,7 @@ router.post('/updateTableInvoice', async (req, res) => {
                 const query = { _id: new ObjectId(ID), soldOut: soldOut[ID] };
                 const existingItem = await popular.findOne({ _id: new ObjectId(ID) });
                 if(existingItem) {
-                    await popular.updateOne({ _id: new ObjectId(ID) }, { $set: { soldOut: soldOut[ID] } });
+                    await popular.updateOne({ _id: new ObjectId(ID) }, { $set: { soldOut: existingItem.soldOut + soldOut[ID] } });
                 } else {
                     await popular.insertOne(query);
                 }

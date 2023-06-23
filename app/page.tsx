@@ -69,12 +69,12 @@ export default function Home() {
   return (
     <main >
          {/* header */}
-        <div className="flex items-center bg-slate-900 w-fit border border-2 text-center p-6 m-6 rounded-lg">
+        <div className="absolute top-0 left-0 flex items-center bg-slate-900 w-fit border border-2 text-center p-6 m-6 rounded-lg">
           <header className="font-bold text-xl text-white"><span className="text-emerald-300 animate-pulse">E</span>asy<span className="text-emerald-300 animate-pulse">O</span>rder</header>
           <img className="m-auto rounded-full p-1" src="/images/tequila-sunrise.png" alt="" />
         </div>
       {/* layout */}
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center mt-10 md:mt-32 lg:mt-48">
         <div className={show ? "text-black flex flex-wrap md:w-8/12 lg:w-8/12 justify-center gap-2" : "hidden"}>
           {
             category.map(item =>(
@@ -90,8 +90,8 @@ export default function Home() {
         { !show && categoryName != 'Bill' &&  categoryName != 'popular selection' && <Order itemType={itemType} categoryName={categoryName} /> } 
         { !show && categoryName == 'Bill' && <Bill title={'tables'} /> } 
         { !show && categoryName == 'popular selection' && <Popularity /> } 
-        <div className={!show ? "w-4/12 md:w-4/12 lg:w-3/12 bg-white hover:bg-orange-300 md:uppercase text-center m-2 ..." : "hidden"}>
-          <button onClick={backToMenu} className="w-full p-4 uppercase font-bold">back</button>
+        <div className={`${!show ? "w-4/12 md:w-4/12 lg:w-2/12 bg-white hover:bg-orange-300 md:uppercase text-center m-2 ..." : "hidden"} ${categoryName == 'popular selection'? 'absolute top-5 right-5' : null}`}>
+          <button onClick={backToMenu} className={`w-full p-4 uppercase font-bold`}>{categoryName == 'popular selection' ? <span className="text-2xl">&#x2B05;</span> : 'back'}</button>
         </div>
       </div>
     </main>
