@@ -271,7 +271,7 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
 
                                                 // Step 5: Render merged items
                                                 return Object.values(mergedItems).map((mergedDetail) => (
-                                                    <tr key={mergedDetail.item._id}>
+                                                    <tr key={`${mergedDetail.item._id}`}>
                                                     <td className='p-4 border-b font-medium'>{mergedDetail.item.name}</td>
                                                     <td className='p-4 border-b'>{mergedDetail.quantity}</td>
                                                     <td className='p-4 border-b'>{mergedDetail.item.price}</td>

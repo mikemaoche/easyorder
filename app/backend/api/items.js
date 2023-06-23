@@ -152,22 +152,18 @@ router.post('/fetchOrders', async (req, res) => {
       const collect = db.collection('orders'); 
       const orders = await collect.find({ table_id: parseInt(tableId) }).toArray();
 
-
-      const itemIds = orders.flatMap(order => order.item.id);
-      const updatedItemIds = itemIds.map(itemId => itemId.split('_')[0]);
-
       // convert to ObjectId
-      const objectIdArray = updatedItemIds.map(itemId => new ObjectId(itemId));
-      for (const order of orders) {
-        const dynamicCollection = db.collection(order.item.category_id);
-        const itemDetails = await dynamicCollection.find({ _id : { $in: objectIdArray } }).toArray();
-        
-        if(itemDetails) {
-          itemDetails.forEach((item) => {
-              order.item.price = item.price ? parseFloat(item.price.toString()) : item.drink_type ? parseFloat(item.drink_type.served[0].price.toString()) : null;
+      const collections = await db.listCollections().toArray();
+      const filteredCollections = collections.filter(collection => collection.name !== 'popular');
+      for (const collection of filteredCollections) {
+        for (const order of orders) {
+            const dynamicCollection = db.collection(collection.name);
+            const item = await dynamicCollection.findOne({ _id :  new ObjectId(order.item.id.split('_')[0]) });
+            if(item) {
+              order.item.price = item.price ? parseFloat(item.price) : 0;
               order.item.takeaway = item.takeaway;
               order.item.note = item.note
-          })
+            }
         }
       }
       res.status(200).json({ orders, message: `the order is fetched from ${tableId}` });
@@ -186,30 +182,87 @@ router.post('/fetchOrders', async (req, res) => {
 
 router.get('/getPopularItems', async (req, res) => {
   try {
-    let db = await connectToDatabase();
-    const popular = db.collection('popular');
-    if (popular.length === 0) {
-      await database.createCollection('popular');
+        let db = await connectToDatabase();
+        const popular = db.collection('popular');
+        if (popular.length === 0) {
+          await database.createCollection('popular');
+        }
+        const popularSoldOutItems = await popular.find().toArray();
+        const popularItems = await popular.aggregate([
+          {
+            $match: { _id: { $in: popularSoldOutItems.map(item => item._id) } }
+          },
+          {
+            $lookup: {
+              from: 'popular',
+              localField: '_id',
+              foreignField: '_id',
+              as: 'popularData'
+            }
+          },{
+            $lookup: {
+              from: 'food',
+              localField: '_id',
+              foreignField: '_id',
+              as: 'foodData'
+            }
+          },
+          {
+            $lookup: {
+              from: 'drinks',
+              localField: '_id',
+              foreignField: '_id',
+              as: 'drinksData'
+            }
+          },
+          {
+            $lookup: {
+              from: 'desserts',
+              localField: '_id',
+              foreignField: '_id',
+              as: 'dessertsData'
+            }
+          },
+          {
+            $lookup: {
+              from: 'kids_menu',
+              localField: '_id',
+              foreignField: '_id',
+              as: 'kidsMenuData'
+            }
+          },
+          {
+            $project: {
+              name: {
+                $cond: [
+                  { $gt: [{ $size: '$foodData' }, 0] },
+                  { $arrayElemAt: ['$foodData.name', 0] },
+                  {
+                    $cond: [
+                      { $gt: [{ $size: '$drinksData' }, 0] },
+                      { $arrayElemAt: ['$drinksData.name', 0] },
+                      {
+                        $cond: [
+                          { $gt: [{ $size: '$dessertsData' }, 0] },
+                          { $arrayElemAt: ['$dessertsData.name', 0] },
+                          { $arrayElemAt: ['$kidsMenuData.name', 0] } // Assuming tea is in the kids_menu table
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              quantitySold: { $sum: '$popularData.soldOut' }
+            }
+          }
+        ]).sort({ quantitySold: -1 }).limit(10).toArray();
+        res.status(200).json({ popular: popularItems, message: `Popular items are fetched` });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ message: `Failed to fetch popular items from MongoDB` });
+    } finally {
+      await closeDatabaseConnection();
     }
-
-  popular.aggregate([
-  {
-    $group: {
-      _id: '$orderItem',
-      totalQuantity: { $sum: '$quantity' }
-    }
-  },
-  { $sort: { totalQuantity: -1 } },
-  { $limit: 10 }
-  ]).toArray();
-  
-    res.status(200).json({ popular, message: `Popular items are fetched` });
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ message: `Failed to fetch popular items from MongoDB` });
-  } finally {
-    await closeDatabaseConnection();
-  }
 })
 
 
