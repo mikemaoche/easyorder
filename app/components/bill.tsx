@@ -46,7 +46,7 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
                 let sum = 0;
                 if(orders) {
                     orders.forEach(order => {
-                        sum += order.item.price;
+                        sum += order.item.price * order.quantity;
                     });
                     setTotal(sum);
                     setOrders(orders);
