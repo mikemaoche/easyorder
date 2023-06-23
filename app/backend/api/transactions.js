@@ -12,9 +12,42 @@ router.post('/updateTableInvoice', async (req, res) => {
         const tables = db.collection('tables');
         let _id = parseInt(tableNumber);
         const amountLeftDecimal = Decimal128.fromString(amountLeft.toString());
-        // delete the table and orders associated to it
+        
         if(amountLeft <= 0) {
             const orders = db.collection('orders'); 
+            // register the quantity sold out for popular products
+            const popular = db.collection('popular');
+            if (popular.length === 0) {
+                await database.createCollection('popular');
+            }
+            // take all items on this table
+            const items = await orders.find({ table_id : _id }).toArray();
+
+            // count how many times this item is sold out
+            const soldOut = items.reduce((result,detail) => {
+                const ID = detail.item.id.split('_')[0];
+                const quantity = detail.quantity;
+                // If the item ID is already present in the result object, add the quantity
+                if (result[ID]) {
+                  result[ID] += quantity;
+                } else {
+                  // If the item ID is not present, initialize it with the quantity
+                  result[ID] = quantity;
+                }
+                return result;
+            }, {});
+            // update or insert
+            for (const ID in soldOut) {
+                const query = { _id: new ObjectId(ID), soldOut: soldOut[ID] };
+                const existingItem = await popular.findOne({ _id: new ObjectId(ID) });
+                if(existingItem) {
+                    await popular.updateOne({ _id: new ObjectId(ID) }, { $set: { soldOut: soldOut[ID] } });
+                } else {
+                    await popular.insertOne(query);
+                }
+            }
+            
+            // delete the table and orders associated to it
             await orders.deleteMany({ table_id : _id});
             await tables.findOneAndDelete({ _id });
             color = 'green';
