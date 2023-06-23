@@ -245,18 +245,50 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
                                 <div className='w-full overflow-y-auto max-h-[540px]'>
                                     <table className='w-full table-fixed text-right'>
                                         <tbody>
-                                            {
-                                                orders && orders.length > 0 ? orders.map((detail) => (
-                                                    <tr key={detail._id}>
-                                                        <td className='p-4 border-b font-medium'>{detail.item.name}</td>
-                                                        <td className='p-4 border-b'>{detail.quantity}</td>
-                                                        <td className='p-4 border-b'>{detail.item.price}</td>
-                                                        <td className='p-4 border-b font-bold'>{detail.quantity * detail.item.price}</td>
+                                        {
+                                            orders && orders.length > 0 ? (
+                                                (() => {
+                                                // Step 1: Initialize merged items object
+                                                const mergedItems = {};
+
+                                                // Step 2: Merge duplicate items
+                                                orders.forEach((detail) => {
+                                                    const ID = detail.item.id.split('_')[0];
+                                                    const quantity = detail.quantity;
+                                                    console.log(ID);
+                                                    
+                                                    if (mergedItems[ID]) {
+                                                    // Step 3: Update quantity of existing item
+                                                    mergedItems[ID].quantity += quantity
+                                                    } else {
+                                                    // Step 4: Add new item
+                                                    mergedItems[ID] = {
+                                                        item: detail.item,
+                                                        quantity: quantity,
+                                                    };
+                                                    }
+                                                });
+
+                                                // Step 5: Render merged items
+                                                return Object.values(mergedItems).map((mergedDetail) => (
+                                                    <tr key={mergedDetail.item._id}>
+                                                    <td className='p-4 border-b font-medium'>{mergedDetail.item.name}</td>
+                                                    <td className='p-4 border-b'>{mergedDetail.quantity}</td>
+                                                    <td className='p-4 border-b'>{mergedDetail.item.price}</td>
+                                                    <td className='p-4 border-b font-bold'>
+                                                        {mergedDetail.quantity * mergedDetail.item.price}
+                                                    </td>
                                                     </tr>
-                                                )) 
-                                                : 
-                                                <tr><td className='uppercase font-bold text-2xl text-center p-2'>{loadData ? 'loading...' : 'no data found'}</td></tr>
-                                            }
+                                                ));
+                                                })()
+                                            ) : (
+                                                <tr>
+                                                <td className='uppercase font-bold text-2xl text-center p-2'>
+                                                    {loadData ? 'loading...' : 'no data found'}
+                                                </td>
+                                                </tr>
+                                            )
+                                        }
                                         </tbody>
                                     </table>
                                 </div>
