@@ -57,7 +57,11 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
             }
         }
         
-        if(toggle) fetchOrders()
+        if(toggle) {
+            setOrders([])
+            fetchOrders()
+        }
+
         if(isTablePaid) {
             closeModal()
             setTogglePayment(false)
