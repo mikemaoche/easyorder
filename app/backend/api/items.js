@@ -158,6 +158,7 @@ router.post('/fetchOrders', async (req, res) => {
       for (const collection of filteredCollections) {
         for (const order of orders) {
             const dynamicCollection = db.collection(collection.name);
+            console.log(order.item);
             const item = await dynamicCollection.findOne({ _id :  new ObjectId(order.item.id.split('_')[0]) });
             if(item) {
               order.item.price = item.price ? parseFloat(item.price) : 0;
