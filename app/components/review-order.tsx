@@ -8,18 +8,29 @@ interface ChildComponentProps {
     setSelectedItems: React.Dispatch<React.SetStateAction<Order[]>>;
 }
 
-export default function Review({ idToggle, toggleFlash, categoryName, resetBucketList, deleteSelectedItem, editQuantity, selectedItems, setSelectedItems}){
+interface ReviewProps {
+    idToggle: number;
+    toggleFlash: boolean;
+    categoryName: string;
+    resetBucketList: () => void;
+    deleteSelectedItem: (id: number) => void;
+    editQuantity: (id: number, quantity: number) => void;
+    selectedItems: any[]; // Update this with the actual type of selectedItems
+    setSelectedItems: React.Dispatch<React.SetStateAction<any[]>>; // Update this with the actual type of setSelectedItems
+}
+
+export default function Review({ idToggle, toggleFlash, categoryName, resetBucketList, deleteSelectedItem, editQuantity, selectedItems, setSelectedItems } : ReviewProps){
     const TABLE_STYLE = 'fixed top-20 left-0 right-0 bottom-20 m-auto z-10 bg-emerald-400 w-6/12 p-4 border-4 justify-center'
     const table = 'unselected'
-    const [canSend, setCanSend] = useState(true)
+    const [canSend, setCanSend] = useState<boolean>(true)
     const [tableNumber, setTableNumber] = useState(table)
-    const [flash, setFlash] = useState(false);
-    const [isEditOrderOn, setIsEditOrderOn] = useState(false)
+    const [flash, setFlash] = useState<boolean>(false);
+    const [isEditOrderOn, setIsEditOrderOn] = useState<boolean>(false)
     const [itemId, setItemId] = useState(null)
-    const [extend, setExtend] = useState(false)
-    const [tableButton, setTableButton] = useState(false)
-    const [clearButton, setClearButton] = useState(true)
-    const [dataLoaded, setDataLoaded] = useState(false)
+    const [extend, setExtend] = useState<boolean>(false)
+    const [tableButton, setTableButton] = useState<boolean>(false)
+    const [clearButton, setClearButton] = useState<boolean>(true)
+    const [dataLoaded, setDataLoaded] = useState<boolean>(false)
     const [productName, setproductName] = useState(null)
 
     useEffect(() => {

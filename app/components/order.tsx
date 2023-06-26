@@ -40,22 +40,24 @@ const typeDrinkColorMap = {
   
   // Add more type_drink-color mappings as needed
 };
-
 type Item = {
   id: number;
   name: string;
   quantity: number;
+  category_id : number;
+  readable : string;
+  decafe? : boolean;
 };
 
 type OrderProps = {
     itemType:  String;
-    categoryName: String;
+    categoryName: string;
 }
 const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<{items:[ Item ]}[]>([]);
   const [selectedItems, setSelectedItems] = useState<Item[]>([])
-  const [toggleFlash, setToggleFlash] = useState(false)
-  const [idToggle, setIdToggle] = useState(0)
+  const [toggleFlash, setToggleFlash] = useState<boolean>(false)
+  const [idToggle, setIdToggle] = useState<number>(0)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -84,14 +86,14 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
   
   }, [selectedItems])
   
-  const addCoffeeField = (itemName) => {
+  const addCoffeeField = (itemName : string) => {
     if(itemName == 'cappucino' || itemName == 'latte' || itemName == 'flat white') return false
     if(itemName == 'long black' || itemName == 'macchiato') return false
     if(itemName == 'mocchaccino' || itemName == 'iced coffee' || itemName == 'special coffees') return false
     return undefined
   }
 
-  const addItem = (itemId,itemName,category_id) => {
+  const addItem = (itemId : number,itemName : string,category_id : number) => {
     let decafe = addCoffeeField(itemName.toLowerCase())
     let newItem: Item = { id: itemId, name: itemName, quantity : 1, category_id , readable : 'editable', decafe, };
     const existingItem = selectedItems.find(item => item.id === itemId);
@@ -99,7 +101,7 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
         // Generate a unique identifier for the new item
         const uniqueId = `${itemId}_${Date.now()}`;
         newItem = {
-          id: uniqueId,
+          id: parseInt(uniqueId),
           name: itemName,
           quantity: 1,
           category_id,
@@ -155,8 +157,8 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
               md:w-4/12 lg:w-6/12 justify-center gap-2 m-2 
               overflow-y-auto max-h-[500px] scroll-smooth '>
                   {
-                      data && data.items ? (
-                      data.items.map((item: { type: string; _id: React.Key | null | undefined; drink_type: { name: string | number; }; name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.PromiseLikeOfReactNode | null | undefined; category_id: string; }) => {
+                      data && data.length > 0 ? (
+                      data.items.map((item: { type: string; _id: React.Key | null | undefined; drink_type: { name: string | number; }; name: any; category_id: string; }) => {
                         if(item.type == 'wines' && categoryName == 'wines')
                           return <div role='button' onClick={() => addItem(item._id,item.name,item.category_id)} key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.drink_type.name]}`}>
                            {item.name}</div>

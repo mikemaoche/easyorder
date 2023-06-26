@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, ChangeEvent } from 'react'
+import { ObjectId } from 'mongodb';
 
 interface Item {
     _id: ObjectId;
@@ -9,17 +10,22 @@ interface Item {
     takeaway: boolean;
   }
   
-interface Props {
-itemId: string;
+interface EditOrderProps {
+  itemId: string;
+  categoryName : string, 
+  productName : string, 
+  setEditToggle : (setEditToggle : boolean) => void, 
+  selectedItems : Array<any>, 
+  setSelectedItems :  (selectedItems: Array<any>) => void;
 }
 
-const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEditToggle , selectedItems, setSelectedItems}) => {
+const EditOrder = ({itemId, categoryName, productName, setEditToggle , selectedItems, setSelectedItems} : EditOrderProps) => {
     const [data,setData] = useState(null)
     const [takeaway, setTakeaway] = useState(categoryName == 'takeaway' ? true : false)
     const [note, setNote] = useState("")
     const [alcohol, setAlcohol] = useState(false)
     const [decafe, setDecafe] = useState(false)
-    const [checkboxStates, setCheckboxStates] = useState({
+    const [checkboxStates, setCheckboxStates] = useState<{ [key: string]: boolean }>({
       glass: true,
       bottle: false,
       carafe: false,
@@ -41,7 +47,6 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
                   });
                   let data = await response.json()
                   const selectedItem = selectedItems.find(item => item.id === itemId);
-                  console.log(selectedItem);
                   
                   if (selectedItem) {
                     // update fields
@@ -85,7 +90,7 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
       setDecafe(!decafe)
     }
 
-    const handleChecked = (e) => {
+    const handleChecked = (e: ChangeEvent<HTMLInputElement>): void => {
       const { name, checked } = e.target
       console.log(name);
       
@@ -98,13 +103,11 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
     }
 
     // select box for the spirits
-    const handleOptionClick = (option) => {
-      console.log(option);
-      
+    const handleOptionClick = (option: any) => {
       setSelectedOption(option);
     };
 
-    const handleNote = (e) => {
+    const handleNote = (e: ChangeEvent<HTMLInputElement>): void => {
       setNote(e.target.value)
     }
 
@@ -134,18 +137,20 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
                        data ? (
                         <ul className='w-full m-auto uppercase'>
                           {
-                            Object.keys(data).map((key, index) => (
+                            Object.keys(data).map((key, index) => 
+                            (
                             <li key={`${key}_${index}`} className='my-4 px-2'>
                               {
                                 (key == 'name' || key == 'type' || key == 'country' || key == 'brand') && (<><strong>{key}: </strong><span>{JSON.stringify(data[key]).replace(/"/g, '')}</span></>) ||
-                                key == 'price' && (<><strong>{key}:</strong><span> ${JSON.stringify(data[key].$numberDecimal).replace(/"/g, '')}</span></>) ||
+                                key == 'price' && (<><strong>{key}:</strong>
+                                <span> ${JSON.stringify(data && typeof data[key] === 'object' && '$numberDecimal' in data[key] ?  (data[key] as { $numberDecimal: number }).$numberDecimal : 0).replace(/"/g, '')}</span></>) ||
                                 key == 'drink_type' && 
                                 (
                                   <>
-                                    <strong>specific type: </strong><span>{JSON.stringify(data[key].name).replace(/"/g, '')}</span>
+                                    <strong>specific type: </strong><span>{JSON.stringify(data && typeof data[key] === 'object' && 'name' in data[key] ? (data[key] as { name: string }).name : 'Nan').replace(/"/g, '')}</span>
                                     <p><strong>served per</strong></p>
                                     {
-                                      JSON.parse(JSON.stringify(data[key].served)).map((detail,index) => (
+                                      JSON.parse(JSON.stringify(data && typeof data[key] === 'object' && 'served' in data[key] ? (data[key] as { served: string }).served : [])).map((detail : any, index : number) => (
                                           <div key={`${key}_${index}`} className='flex gap-2 items-center'>
                                             <input onChange={(e) => handleChecked(e)} name={detail.type.split(' ')[0]} className='w-20 h-20 my-2' type="radio" checked={checkboxStates[detail.type.split(' ')[0]]}/>
                                             <p>{detail.type} (${detail.price.$numberDecimal})</p>
@@ -166,7 +171,7 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
                                   <>
                                     <strong>Can come with:</strong>
                                     {
-                                      JSON.parse(JSON.stringify(data[key])).map((option,index) => (
+                                      JSON.parse(JSON.stringify(data[key])).map((option : any,index : number) => (
                                             <p key={`${key}_${index}`}>{option}</p>
                                         )
                                       )
@@ -181,7 +186,7 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
                                     <p className='uppercase font-bold'>available options: <span className='font-normal lowercase'>(touch one)</span></p>
                                     <div className=''>
                                       {
-                                        JSON.parse(JSON.stringify(data[key])).map((spirit,index) => (
+                                        JSON.parse(JSON.stringify(data[key])).map((spirit : any,index : number) => (
                                               <button key={`${spirit.name}_${index}`} className={`px-4 py-2 m-2 rounded text-white uppercase
                                                 ${spirit.name === selectedOption ? 'bg-blue-500' : 'bg-gray-400'}`} 
                                                 onClick={() => handleOptionClick(spirit.name)}
@@ -204,7 +209,7 @@ const EditOrder: React.FC<Props>  = ({itemId, categoryName, productName, setEdit
                                 ) ||
                                 key == 'prices' && (
                                   <>
-                                    <strong>actual price: </strong><span>$ {data[key][!alcohol ? 0 : 1].$numberDecimal} ({alcohol ? 'with' : 'without'} liqueur)</span>
+                                    <strong>actual price: </strong><span>$ {data && typeof data[key] === 'object' && '$numberDecimal' in data[key] ?  (data[key][!alcohol ? 0 : 1] as { $numberDecimal: number }).$numberDecimal : 0} ({alcohol ? 'with' : 'without'} liqueur)</span>
                                   </>
                                 )
 

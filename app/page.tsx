@@ -5,9 +5,9 @@ import Bill from './components/bill'
 import Popularity from './components/popular-items'
 
 export default function Home() {
-  const [show, setShow] = useState(true)
-  const [categoryName, setCategoryName] =  useState("")
-  const [itemType, setItemType] =  useState("")
+  const [show, setShow] = useState<boolean>(true)
+  const [categoryName, setCategoryName] =  useState<String>("")
+  const [itemType, setItemType] =  useState<String>("")
 
   const category = [
     {name:"wines",img:"wines"},

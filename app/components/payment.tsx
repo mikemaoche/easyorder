@@ -4,7 +4,7 @@ import Notification from './notification'
 
 export default function payment({ setNotifyBill, setTogglePayment, total, tableNumber, isTablePaid, setTablePaid}) {
     const [payMethod, setPayMethod] = useState(null)
-    const [notify,setNotify] = useState({state:false, color:'', message:''})
+    const [notify,setNotify] = useState<object>({state:false, color:'', message:''})
 
     useEffect(() => {
         if(isTablePaid) setNotifyBill(notify)

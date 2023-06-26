@@ -1,6 +1,16 @@
 import React, { useEffect } from 'react'
 
-export default function notification({ notify, setNotify, duration}) {
+type NotificationProps = {
+    notify: {
+      state: boolean;
+      color: string;
+      message: string;
+    };
+    setNotify: (value: any) => void;
+    duration: number;
+};
+
+export default function notification({ notify, setNotify, duration} : NotificationProps) {
     useEffect(() => {
         if(notify.state) {
             const timeout = setTimeout(() =>{

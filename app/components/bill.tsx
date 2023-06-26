@@ -1,27 +1,47 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { jsPDF } from 'jspdf'
-import "jspdf-autotable"
+import autoTable from 'jspdf-autotable'
 import Payment from './payment'
 import Notification from './notification'
-  
-export default function bill({ style, tableButton, closeTablesUI, setTableNumber, tableNumber, setDataLoaded , setSelectedItems, title}) {
-    const [nbOfTables, setNumbTables] = useState(52)
+
+interface billProps {
+    style: React.CSSProperties | string;
+    tableButton: boolean;
+    closeTablesUI: () => void;
+    setTableNumber: (tableNumber: number) => void;
+    tableNumber: number;
+    setDataLoaded: (dataLoaded: boolean) => void;
+    title: string;
+}
+interface Item {
+    price: number;
+}
+
+interface Order {
+    id: number;
+    item: Item;
+    name: string;
+    quantity: number;
+}
+
+export default function bill({ style, tableButton, closeTablesUI, setTableNumber, tableNumber, setDataLoaded , title} : billProps) {
+    const [nbOfTables, setNumbTables] = useState<number>(52)
     const [toggle,setToggle] = useState(false)
     const modalRef = useRef(null)
-    const [tables, setTables] = useState([])
-    const [orders, setOrders] = useState([])
+    const [tables, setTables] = useState<any[]>([])
+    const [orders, setOrders] = useState<any[]>([])
     const currentDate = new Date();
-    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const hours = String(currentDate.getHours()).padStart(2, '0');
     const minutes = String(currentDate.getMinutes()).padStart(2, '0');
     const currentTime = `${hours}:${minutes} nz timezone`
-    const date = currentDate.toLocaleDateString('en-GB', options);
+    const format: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    const date = currentDate.toLocaleDateString('en-GB', format);
     const COMPANY_NAME = 'Portofino'
     const [total, setTotal] = useState(0)
     const [staff, setStaff] = useState('John')
     const [togglePayment, setTogglePayment] = useState(false)
     const [loadData, setLoadData] = useState(true)
-    const [localTableNumber,setLocalTableNumber] = useState(0)
+    const [localTableNumber,setLocalTableNumber] = useState<number>(0)
     const [isTablePaid, setTablePaid] = useState(false)
     const [notify,setNotify] = useState({state:false, color:'', message:''})
     
@@ -45,7 +65,7 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
                 
                 let sum = 0;
                 if(orders) {
-                    orders.forEach(order => {
+                    orders.forEach((order: Order) => {
                         sum += order.item.price * order.quantity;
                     });
                     setTotal(sum);
@@ -93,7 +113,7 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
     const sendTableNumber = (e: React.MouseEvent<HTMLButtonElement>) => {
         const table = e.currentTarget.value
         setDataLoaded(false)
-        setTableNumber(table)
+        setTableNumber(parseInt(table))
         closeTables()
     }
 
@@ -101,7 +121,7 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
     const openModal = (e: React.MouseEvent<HTMLButtonElement>) => {
         const table = e.currentTarget.value
         setToggle(true)
-        setLocalTableNumber(table)
+        setLocalTableNumber(parseInt(table))
     }
 
     const closeModal = () => {
@@ -119,56 +139,59 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
 
         // header HTML
         const header =  document.getElementById('header')?.textContent?.toUpperCase()
-        let pageWidth = doc.internal.pageSize.getWidth();
-        const textWidth = doc.getStringUnitWidth(header) * doc.internal.getFontSize() / doc.internal.scaleFactor;
-        const x = pageWidth - textWidth - 15;
-        doc.text(header, x, 10);
-
-        // table HTML
-        const table = document.getElementById('tableBill')
-        const tableHeaderRow  = table.getElementsByTagName('thead')[0].querySelector('tr');
-        const tableHeader = Array.from(tableHeaderRow.cells).map(cell => cell.textContent);
-        const tableBodyRows = table.getElementsByTagName('tbody')[0].querySelectorAll('tr');
+        if(header) {
+            let pageWidth = doc.internal.pageSize.getWidth();
+            const textWidth = doc.getStringUnitWidth(header) * doc.getFontSize() / doc.internal.scaleFactor;
+            const x = pageWidth - textWidth - 15;
+            doc.text(header, x, 10);
+            // table HTML
+            const table = document.getElementById('tableBill')
+            if(table) {
+                const tableHeaderRow  = table.getElementsByTagName('thead')[0].querySelector('tr');
+                if(tableHeaderRow) {
+                    const tableHeader = Array.from(tableHeaderRow.cells).map(cell => cell.textContent);
+                    const tableBodyRows = table.getElementsByTagName('tbody')[0].querySelectorAll('tr');
+                    const tableBody = Array.from(tableBodyRows).map(row => {
+                        const rowData = Array.from(row.cells).map(cell => cell.textContent)
+                        return rowData
+                    });
+                    autoTable(doc, {
+                        head: [tableHeader],
+                        body: tableBody,
+                    });
+                }
+            }
+            // footer HTML
+            const footer =  document.getElementById('footer')
+            if(footer) {
+                pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                // Set the position coordinates for the footer
+                const footerX = pageWidth - 15;
+                const footerY = pageHeight - 70;
         
-        const tableBody = Array.from(tableBodyRows).map(row => {
-            const rowData = Array.from(row.cells).map(cell => cell.textContent)
-            return rowData
-        });
+                doc.setFillColor('pink');
+                doc.setDrawColor('gray');
+                doc.setLineWidth(1);
+                doc.rect(footerX - 38, footerY - 5, 40, 50, 'FD');
         
-        doc.autoTable({
-            head: [tableHeader],
-            body: tableBody,
-        });
-
-        // footer HTML
-        const footer =  document.getElementById('footer').innerText
-        pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        // Set the position coordinates for the footer
-        const footerX = pageWidth - 15;
-        const footerY = pageHeight - 70;
-
-        doc.setFillColor('pink');
-        doc.setDrawColor('gray');
-        doc.setLineWidth('1');
-        doc.rect(footerX - 38, footerY - 5, 40, 50, 'FD');
-
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(10);
-        doc.text(footer, footerX, footerY,{
-            align: 'right',
-        });
-
-
-        // detail HTML
-        const detail =  document.getElementById('detail').innerText
-        pageWidth = doc.internal.pageSize.getWidth();
-        doc.text(detail, 15, footerY,{
-            align: 'left',
-        });
-
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.text(footer.innerText, footerX, footerY,{
+                    align: 'right',
+                });
+    
+                // detail HTML
+                const detail =  document.getElementById('detail')
+                if(detail) {
+                    pageWidth = doc.internal.pageSize.getWidth();
+                    doc.text(detail.innerText, 15, footerY,{
+                        align: 'left',
+                    });
+                }
+            }
+        }
         doc.save(fileName + '.pdf');
-        console.log('pdf is generated')
     }
     
     const togglePaymentModal = () => {
@@ -253,7 +276,7 @@ export default function bill({ style, tableButton, closeTablesUI, setTableNumber
                                             orders && orders.length > 0 ? (
                                                 (() => {
                                                 // Step 1: Initialize merged items object
-                                                const mergedItems = {};
+                                                const mergedItems: { [key: string]: any } = {};
 
                                                 // Step 2: Merge duplicate items
                                                 orders.forEach((detail) => {

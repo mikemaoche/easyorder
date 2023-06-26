@@ -6,7 +6,6 @@
     "dev": "next dev",
     "build": "next build",
     "start": "concurrently \"npm run dev\" \"npm run start-server\"",
-    "lint": "next lint",
     "start-server": "nodemon app/backend/server.js"
   },
   "dependencies": {
