@@ -2,9 +2,26 @@ import React, { useEffect, useState } from 'react'
 import Transaction from './transaction'
 import Notification from './notification'
 
-export default function payment({ setNotifyBill, setTogglePayment, total, tableNumber, isTablePaid, setTablePaid}) {
-    const [payMethod, setPayMethod] = useState(null)
-    const [notify,setNotify] = useState<object>({state:false, color:'', message:''})
+
+type PaymentProps = {
+    setNotifyBill: (value: any) => void, 
+    setTogglePayment : (value: boolean) => void, 
+    total : number, 
+    tableNumber : number, 
+    isTablePaid : boolean, 
+    setTablePaid : (value: boolean) => void
+}
+export default function payment({ setNotifyBill, setTogglePayment, total, tableNumber, isTablePaid, setTablePaid} : PaymentProps) {
+    const [payMethod, setPayMethod] = useState<boolean | null>(null)
+    const [notify, setNotify] = useState<{
+        state: boolean;
+        color: string;
+        message: string;
+      }>({
+        state: false,
+        color: '',
+        message: '',
+      });
 
     useEffect(() => {
         if(isTablePaid) setNotifyBill(notify)
@@ -14,7 +31,7 @@ export default function payment({ setNotifyBill, setTogglePayment, total, tableN
         setTogglePayment(false)
     }
 
-    const choosePayment = (e) => {
+    const choosePayment = (e: any) => {
         let text = e.target.innerText.toLowerCase()
         setPayMethod(text)
     }

@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from 'react'
 
+interface PopularItem {
+  _id: string;
+  name: string;
+  quantitySold: number;
+  // Add more properties if necessary
+}
+
 export default function Popularity() {
   
-  const [popular, setPopular] = useState([])
+  const [popular, setPopular] = useState<PopularItem[]>([])
   const gold = {
     borderColor: 'border-yellow-500',
     fontColor: 'text-yellow-600',
@@ -55,11 +62,14 @@ export default function Popularity() {
               if(rank === 1) color = gold
               if(rank === 2) color = silver
               if (rank === 3) color = bronze
+              let id = item._id
+              let name = item.name
+              let quantity = item.quantitySold
               return (
-                <div key={`${item._id}_${rank.toString()}`} className={`${color?.bg} ${color?.borderColor} ${color?.fontColor} w-full bg-white border border-4 hover:border-green-400 hover:bg-green-100 hover:text-green-600 text-center p-4 uppercase`} role='button'>
+                <div key={`${id}_${rank.toString()}`} className={`${color?.bg} ${color?.borderColor} ${color?.fontColor} w-full bg-white border border-4 hover:border-green-400 hover:bg-green-100 hover:text-green-600 text-center p-4 uppercase`} role='button'>
                   <div className={`flex ${rank === 1 ? 'items-center' : null} justify-between`}>
                     <p>rank. {rank}{rank === 1 ?  <img className='w-20 h-20' src="./images/crown.png" alt="" />: null }</p> 
-                    <p><span className='font-bold'>{item.name} </span>[qt sold: <span className='font-bold'>{item.quantitySold}</span>]</p>
+                    <p><span className='font-bold'>{name} </span>[qt sold: <span className='font-bold'>{quantity}</span>]</p>
                   </div>
                 </div>
               )

@@ -6,11 +6,11 @@ import Notification from './notification'
 
 interface billProps {
     style: React.CSSProperties | string;
-    tableButton: boolean;
-    closeTablesUI: () => void;
-    setTableNumber: (tableNumber: number) => void;
-    tableNumber: number;
-    setDataLoaded: (dataLoaded: boolean) => void;
+    tableButton: boolean | null;
+    closeTablesUI: () => void | null;
+    setTableNumber: (value: number) => void | null;
+    tableNumber: string | number;
+    setDataLoaded: (value: boolean) => void | null;
     title: string;
 }
 interface Item {

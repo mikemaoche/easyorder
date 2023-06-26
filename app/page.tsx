@@ -6,8 +6,8 @@ import Popularity from './components/popular-items'
 
 export default function Home() {
   const [show, setShow] = useState<boolean>(true)
-  const [categoryName, setCategoryName] =  useState<String>("")
-  const [itemType, setItemType] =  useState<String>("")
+  const [categoryName, setCategoryName] =  useState<string>("")
+  const [itemType, setItemType] =  useState<string>("")
 
   const category = [
     {name:"wines",img:"wines"},
@@ -88,7 +88,7 @@ export default function Home() {
           }
         </div>
         { !show && categoryName != 'Bill' &&  categoryName != 'popular selection' && <Order itemType={itemType} categoryName={categoryName} /> } 
-        { !show && categoryName == 'Bill' && <Bill title={'tables'} /> } 
+        { !show && categoryName == 'Bill' && <Bill title={'tables'} style={''} tableButton={false} closeTablesUI={()=>{}} setTableNumber={()=>{}} tableNumber={'unselected'} setDataLoaded={()=>{}} /> } 
         { !show && categoryName == 'popular selection' && <Popularity /> } 
         <div className={`${!show ? "w-4/12 md:w-4/12 lg:w-2/12 bg-white hover:bg-orange-300 md:uppercase text-center m-2 ..." : "hidden"} ${categoryName == 'popular selection'? 'absolute top-5 right-5' : null}`}>
           <button onClick={backToMenu} className={`w-full p-4 uppercase font-bold`}>{categoryName == 'popular selection' ? <span className="text-2xl">&#x2B05;</span> : 'back'}</button>

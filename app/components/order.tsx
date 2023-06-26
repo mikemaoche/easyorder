@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Review from './review-order'
 
 // key : value
-const typeDrinkColorMap = {
+const typeDrinkColorMap: Record<string, string>  = {
   'red wines': 'bg-red-400',
   'white wines': 'bg-slate-200',
   'sparkling wines' : 'bg-cyan-300',
@@ -44,7 +44,7 @@ type Item = {
   id: number;
   name: string;
   quantity: number;
-  category_id : number;
+  category_id : string;
   readable : string;
   decafe? : boolean;
 };
@@ -53,8 +53,13 @@ type OrderProps = {
     itemType:  String;
     categoryName: string;
 }
+
+interface DataItem {
+  items: any[]; // Replace 'any' with the actual type of the items array
+}
+
 const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
-  const [data, setData] = useState<{items:[ Item ]}[]>([]);
+  const [data, setData] = useState<DataItem>({ items: [] });
   const [selectedItems, setSelectedItems] = useState<Item[]>([])
   const [toggleFlash, setToggleFlash] = useState<boolean>(false)
   const [idToggle, setIdToggle] = useState<number>(0)
@@ -78,7 +83,7 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
       }
     };
 
-    if(data.length == 0) fetchData();
+    if(data.items.length == 0) fetchData();
   }, [data]);
 
   useEffect(() => {
@@ -93,7 +98,7 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
     return undefined
   }
 
-  const addItem = (itemId : number,itemName : string,category_id : number) => {
+  const addItem = (itemId : number,itemName : string,category_id : string) => {
     let decafe = addCoffeeField(itemName.toLowerCase())
     let newItem: Item = { id: itemId, name: itemName, quantity : 1, category_id , readable : 'editable', decafe, };
     const existingItem = selectedItems.find(item => item.id === itemId);
@@ -145,6 +150,7 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
   const resetBucketList = () => {
     setSelectedItems([]);
   }
+  const { items } = data
 
     return (
         <div>
@@ -157,8 +163,8 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
               md:w-4/12 lg:w-6/12 justify-center gap-2 m-2 
               overflow-y-auto max-h-[500px] scroll-smooth '>
                   {
-                      data && data.length > 0 ? (
-                      data.items.map((item: { type: string; _id: React.Key | null | undefined; drink_type: { name: string | number; }; name: any; category_id: string; }) => {
+                      items.length > 0 ? (
+                      items.map((item: { type: string; _id: number; drink_type: { name: string; }; name: any; category_id: string; }) => {
                         if(item.type == 'wines' && categoryName == 'wines')
                           return <div role='button' onClick={() => addItem(item._id,item.name,item.category_id)} key={item._id} className={`p-4 w-[250px] h-[80px] flex items-center text-center justify-center hover:bg-orange-500 cursor-pointer ${typeDrinkColorMap[item.drink_type.name]}`}>
                            {item.name}</div>

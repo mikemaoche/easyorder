@@ -1,9 +1,17 @@
 import React, { useEffect, useState } from 'react'
 
-export default function transaction({payMethod, setPayMethod, setTablePaid, total, tableNumber, setNotify}) {
-    const [amountLeft, setAmountLeft] = useState(total)
-    const [currentAmount, setCurrentAmount] = useState(0)
-    const [flash, setFlash] = useState(false)
+type TransactionProps = {
+    payMethod : boolean, 
+    setPayMethod : (value : boolean | null) => void, 
+    setTablePaid : (value : boolean) => void,
+    total : number, 
+    tableNumber : string | number, 
+    setNotify: (value: any) => void;
+}
+export default function transaction({payMethod, setPayMethod, setTablePaid, total, tableNumber, setNotify} : TransactionProps ) {
+    const [amountLeft, setAmountLeft] = useState<number>(total)
+    const [currentAmount, setCurrentAmount] = useState<number>(0)
+    const [flash, setFlash] = useState<boolean>(false)
 
     useEffect(() => {
         if(amountLeft <= 0) closeBill()
@@ -74,13 +82,13 @@ export default function transaction({payMethod, setPayMethod, setTablePaid, tota
     const payBill = () => {
         const substract = amountLeft - currentAmount
         setFlash(true)
-        setAmountLeft(substract.toFixed(2))
+        setAmountLeft(Number(substract.toFixed(2)));
     }
 
-    const handleInputs = (e) => {
+    const handleInputs = (e: any) => {
         let oldVal = currentAmount.toString()
         let value = e.target.value.toString()
-        let updatedValue = oldVal
+        let updatedValue: string = oldVal
 
         // not dot found then add a dot
         let existingDot = oldVal.indexOf('.')
@@ -88,7 +96,7 @@ export default function transaction({payMethod, setPayMethod, setTablePaid, tota
         if(value != '<-' && value != '.') updatedValue = oldVal + value
         
         // exceed amount of total then set total
-        if(parseFloat(updatedValue) >= parseFloat(amountLeft)) updatedValue = amountLeft.toString()
+        if(parseFloat(updatedValue) >= parseFloat(amountLeft.toString())) updatedValue = amountLeft.toString()
 
         // delete digits
         if(value == '<-') updatedValue = oldVal.slice(0, oldVal.length-1)
@@ -103,7 +111,7 @@ export default function transaction({payMethod, setPayMethod, setTablePaid, tota
             updatedValue = updatedValue.split('.')[0] + '.' + decimalPart;
         }
         
-        setCurrentAmount(updatedValue)
+        setCurrentAmount(parseFloat(updatedValue))
     }
     
     return (
@@ -113,7 +121,7 @@ export default function transaction({payMethod, setPayMethod, setTablePaid, tota
                 <div className='w-6/12 mx-auto my-4 text-right text-xl m-2 text-white'>
                     <p>table no {tableNumber ? tableNumber : null}</p>
                     <p>total $ {total ? total.toFixed(2) : 'null'}</p>
-                    <p>amount unpaid <span className={ flash ? 'text-rose-500 transition-all delay-1000 duration-500 ease-out ': null}>$ {amountLeft ? amountLeft : null}</span></p>
+                    <p>amount unpaid <span className={`${flash ? 'text-rose-500 transition-all delay-1000 duration-500 ease-out ': null}`}>$ {amountLeft ? amountLeft : null}</span></p>
                 </div>
                 <div className='bg-white w-6/12 m-auto p-2'>
                     <p>current amount</p>

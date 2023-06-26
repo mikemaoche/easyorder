@@ -3,10 +3,6 @@ import EditOrder from './edit-order'
 import Table from './bill'
 
 
-interface ChildComponentProps {
-    orders: Order[];
-    setSelectedItems: React.Dispatch<React.SetStateAction<Order[]>>;
-}
 
 interface ReviewProps {
     idToggle: number;
@@ -23,15 +19,15 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
     const TABLE_STYLE = 'fixed top-20 left-0 right-0 bottom-20 m-auto z-10 bg-emerald-400 w-6/12 p-4 border-4 justify-center'
     const table = 'unselected'
     const [canSend, setCanSend] = useState<boolean>(true)
-    const [tableNumber, setTableNumber] = useState(table)
+    const [tableNumber, setTableNumber] = useState<string | number>(table)
     const [flash, setFlash] = useState<boolean>(false);
     const [isEditOrderOn, setIsEditOrderOn] = useState<boolean>(false)
-    const [itemId, setItemId] = useState(null)
+    const [itemId, setItemId] = useState<string>('')
     const [extend, setExtend] = useState<boolean>(false)
     const [tableButton, setTableButton] = useState<boolean>(false)
     const [clearButton, setClearButton] = useState<boolean>(true)
     const [dataLoaded, setDataLoaded] = useState<boolean>(false)
-    const [productName, setproductName] = useState(null)
+    const [productName, setproductName] = useState<string>('')
 
     useEffect(() => {
         // check if there is a table number and an item before sending
@@ -78,7 +74,7 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
             });
             const { orders, message } = await response.json()
             if(orders != undefined && orders.length > 0) {
-                const updatedItems =  orders.map((order) => ({
+                const updatedItems =  orders.map((order: any) => ({
                         id: order.item.id,
                         name: order.item.name,
                         quantity: order.quantity,
@@ -116,7 +112,7 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
         editQuantity(id, quantity);
     }
 
-    const editItem = (id: any, productName) => {
+    const editItem = (id: any, productName: string) => {
         setItemId(id)
         setIsEditOrderOn(true)
         setproductName(productName)
@@ -184,7 +180,7 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
                             <tbody className=''>
                                 {
                                     selectedItems && selectedItems.length > 0 ? 
-                                    selectedItems.map((item: { name: boolean | React.Key | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.PromiseLikeOfReactNode | null | undefined; id: any; quantity: string | number | readonly string[] | undefined; }, index) => {
+                                    selectedItems.map((item: { name: any; id: any; quantity: string | number | readonly string[] | undefined; readable : string }, index : number) => {
                                         return (
                                                 <tr key={item.id} className={`${item.readable && item.readable == 'readonly' ? 'bg-gray-200' : null} align-top`}>
                                                     <td className='border-b border-l p-4'>
@@ -227,9 +223,8 @@ export default function Review({ idToggle, toggleFlash, categoryName, resetBucke
             }
             {
                 tableButton && (
-                    <Table style={TABLE_STYLE} tableButton={tableButton} closeTablesUI={closeTablesUI} 
+                    <Table title={''} style={TABLE_STYLE} tableButton={tableButton} closeTablesUI={closeTablesUI} 
                     setTableNumber={setTableNumber} tableNumber={tableNumber} 
-                    setSelectedItems={setSelectedItems}
                     setDataLoaded={setDataLoaded} /> 
                 )
             }
