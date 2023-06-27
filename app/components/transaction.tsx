@@ -86,15 +86,12 @@ export default function transaction({payMethod, setPayMethod, setTablePaid, tota
     }
 
     const handleInputs = (e: any) => {
-        let oldVal = currentAmount.toString()
-        let value = e.target.value.toString()
+        let oldVal : string = currentAmount.toString()
+        let value : string = e.target.value
         let updatedValue: string = oldVal
+        updatedValue = oldVal + value
 
-        // not dot found then add a dot
-        let existingDot = oldVal.indexOf('.')
-        if(existingDot == -1 && value != '<-') updatedValue = oldVal + value
-        if(value != '<-' && value != '.') updatedValue = oldVal + value
-        
+
         // exceed amount of total then set total
         if(parseFloat(updatedValue) >= parseFloat(amountLeft.toString())) updatedValue = amountLeft.toString()
 
@@ -110,8 +107,18 @@ export default function transaction({payMethod, setPayMethod, setTablePaid, tota
             decimalPart = decimalPart.slice(0, 2);
             updatedValue = updatedValue.split('.')[0] + '.' + decimalPart;
         }
+
+        const dotCount = updatedValue.split('.').length - 1;
+        if (dotCount > 1) {
+            const parts = updatedValue.split('.');
+            updatedValue = parts.shift() + '.' + parts.join('');
+            
+        }
         
-        setCurrentAmount(parseFloat(updatedValue))
+        if(updatedValue == '') updatedValue = '0'
+        
+        
+        setCurrentAmount(updatedValue)
     }
     
     return (
