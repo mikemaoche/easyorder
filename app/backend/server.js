@@ -41,7 +41,8 @@ module.exports = { connectToDatabase, closeDatabaseConnection };
 
 // change the origin 3000 to 8000 for the queries
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: 'https://easyorder-3bskanvrm-mikemaoche.vercel.app/',
+  // origin: 'http://localhost:3000',
 };
 
 app.use(cors(corsOptions));
