@@ -10,7 +10,7 @@ type TransactionProps = {
 }
 export default function transaction({payMethod, setPayMethod, setTablePaid, total, tableNumber, setNotify} : TransactionProps ) {
     const [amountLeft, setAmountLeft] = useState<number>(total)
-    const [currentAmount, setCurrentAmount] = useState<number>(0)
+    const [currentAmount, setCurrentAmount] = useState<string>('0')
     const [flash, setFlash] = useState<boolean>(false)
 
     useEffect(() => {
@@ -80,7 +80,7 @@ export default function transaction({payMethod, setPayMethod, setTablePaid, tota
     }
 
     const payBill = () => {
-        const substract = amountLeft - currentAmount
+        const substract = amountLeft - parseFloat(currentAmount)
         setFlash(true)
         setAmountLeft(Number(substract.toFixed(2)));
     }
