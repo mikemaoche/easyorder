@@ -67,7 +67,8 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const url = `http://localhost:8000/api/items`
+        // const url = `http://localhost:8000/api/items`
+        const url = `https://easyorder-3bskanvrm-mikemaoche.vercel.app/api/items`
         const response = await fetch(url,
         {
           method: 'POST',
