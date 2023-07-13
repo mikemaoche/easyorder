@@ -3,7 +3,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const port = 8000;
+// const port = 8000;
 const path = require('path');
 
 // mongodb
@@ -58,6 +58,6 @@ app.use('/api/items', itemsRouter);
 const transactionsRouter = require('../backend/api/transactions');
 app.use('/api/transactions', transactionsRouter);
 
-app.listen(port, () => {
-  console.log(`API server running on port ${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`API server running on port ${port}`);
+// });
