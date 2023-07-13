@@ -46,6 +46,14 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// additional hears for cors
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://easyorder-3bskanvrm-mikemaoche.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
 app.use(express.json());
 
 // Serve static files from the 'build' folder
