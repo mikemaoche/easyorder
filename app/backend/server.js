@@ -41,19 +41,11 @@ module.exports = { connectToDatabase, closeDatabaseConnection };
 
 // change the origin 3000 to 8000 for the queries
 const corsOptions = {
-  origin: 'https://easyorder-3bskanvrm-mikemaoche.vercel.app',
+  origin: 'https://easyorder-beryl.vercel.app',
   // origin: 'http://localhost:3000',
 };
 
 app.use(cors(corsOptions));
-
-// additional hears for cors
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://easyorder-3bskanvrm-mikemaoche.vercel.app');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
 app.use(express.json());
 
 // Serve static files from the 'build' folder
