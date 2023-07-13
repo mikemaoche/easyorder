@@ -41,8 +41,7 @@ module.exports = { connectToDatabase, closeDatabaseConnection };
 
 // allow requests using this origin
 const corsOptions = {
-  origin:'*',
-  // origin: 'https://easyorder-beryl.vercel.app',
+  origin: 'https://easyorder-beryl.vercel.app',
   // origin: 'http://localhost:3000',
 };
 

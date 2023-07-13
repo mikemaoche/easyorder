@@ -68,7 +68,7 @@ const Order: React.FC<OrderProps> = ({ itemType, categoryName}) => {
     const fetchData = async () => {
       try {
         // const url = `http://localhost:8000/api/items`
-        const url = `/api/items`
+        const url = `https://easyorder-beryl.vercel.app/api/items`
         const response = await fetch(url,
         {
           method: 'POST',
