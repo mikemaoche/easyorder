@@ -1,0 +1,13 @@
+{
+    "headers": [
+      {
+        "source": "/api/items",
+        "headers": [
+          {
+            "key": "Access-Control-Allow-Origin",
+            "value": "https://easyorder-beryl.vercel.app"
+          }
+        ]
+      }
+    ]
+  }  
